@@ -10,6 +10,7 @@ import datetime
 import json
 import string
 from termcolor import colored
+from difflib import SequenceMatcher
 
 ###############################
 ## Test File Auxiliar Functions 
@@ -63,6 +64,19 @@ def getEmail(filename):
         data_mail = json.load(json_file)
     return data_mail
 
+def getCoords(filename,keyboard_key):
+    name = ''
+    with open(filename) as json_file:
+        dic = json.load(json_file)
+    if keyboard_key == 1:
+        name = "swift"
+    elif keyboard_key == 2:
+        name = "gboard"
+    else:
+        name = "samsung"
+    coords = dic.get(name)
+    return coords
+
 def text_to_lines(text):
    lines = []
    lines = text.split('\n')
@@ -91,6 +105,43 @@ def text_to_chars(text):
             for c in word:
                 chars.append(c)
    return chars
+
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+def my_similar(written_words, espected_words):
+    total = 0
+    correct = 0
+    j = 0
+    for i, val in enumerate(written_words):
+        w_word = written_words[i]
+        e_word = espected_words[j]    
+        if (w_word != ' ') and (e_word != ' '):
+            if (w_word != '\n') and (e_word != '\n'):
+                print(w_word)
+                print(e_word)
+                if w_word[0] == e_word[0]:
+                    if (w_word == e_word):
+                        correct = correct + 1
+                        total = total + 1
+                        j = j+1
+                    else: 
+                        total = total + 1
+                        j=j+1
+    accuracy = (correct / total) * 100
+
+def writeAccuracy(written, espected,script_index):
+    print(colored("Calculating accuracy","yellow"))
+    written_words = text_to_words(written)
+    espected_words = text_to_words(espected)
+    accuracy = similar(written,espected)
+    #accuracy = my_similar(written_words,espected_words)
+    f = open("./Accuracy/"+script_index+".txt","w+")
+    string = written + "\n\n" + "[Accuracy] = " + str(accuracy)
+    f.write(string)
+    f.close()
+    print(colored("Calculating accuracy done","green"))
+
 
 
 
@@ -240,6 +291,38 @@ def writeWords(text,words_to_insert):
             text.type_without_sleep(word_str,alreadyTouched=True)
         #time.sleep(1)
 
+def writeSuggestedWords(vc,text,words_to_insert,coords,suggested_length):
+    for word in words_to_insert:
+        word_str = word.encode('ascii','replace')
+        if word_str == '\n':
+            text.type_without_sleep('\n',alreadyTouched=True)
+            #time.sleep(1)
+        elif word_str == ' ':
+            text.type_without_sleep(' ',alreadyTouched=True)
+        else:
+            tamanho = len(word_str)
+            tamanho_to_write = (int(tamanho) * int(suggested_length)) / 100
+            if tamanho_to_write == 0:
+                tamanho_to_write = 1
+            for c in word_str:
+                if tamanho_to_write > 0:
+                    text.type_without_sleep(c,alreadyTouched=True)
+                    tamanho_to_write = tamanho_to_write - 1
+                elif tamanho_to_write == 0:
+                    reco = coords.get("reco") 
+                    option = coords.get(reco)
+                    vc.touch(int(option[0]),int(option[1]))
+                    tamanho_to_write = tamanho_to_write - 1
+
+def getText(vc,edit_text):
+    print(colored("get written text","yellow"))
+    time.sleep(2)
+    box_to_insert = getEditText(vc, edit_text)
+    text = box_to_insert.getText()
+    time.sleep(2)
+    return text
+                
+
 def prepareEmail(vc,adbcl,data_mail):
     vc.dump(window=-1)
     to_text = vc.findViewById("com.google.android.gm:id/to")
@@ -255,13 +338,11 @@ def prepareEmail(vc,adbcl,data_mail):
     mail_text.touch()
     return mail_text
 
-        
 
 def sendEmail(vc):
     vc.dump(window=-1)
     send_btn = vc.findViewById("com.google.android.gm:id/send")
     send_btn.touch()
-
 
 
 def closeApp(adbcl,package):
@@ -277,9 +358,8 @@ def setImmersiveMode(adbcl,package):
       
 
 def cleaningAppCache(adbcl,package):
-    print(colored("cleaning app cache ...","yellow"))
-    adbcl.shell("pm clear "+ package) 
-
+    print(colored("cleaning " + package + " cache ...","yellow"))
+    adbcl.shell("pm clear "+ package)
 
 
 ##########################
