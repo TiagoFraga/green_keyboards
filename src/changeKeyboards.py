@@ -14,7 +14,12 @@ from os import sys
 import time
 
 adbcl = adbclient.AdbClient('.*', settransport=True)
-keyboardsPaths = {1:"com.touchtype.swiftkey/com.touchtype.KeyboardService",2:"com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",3:"panda.keyboard.emoji.theme/com.android.inputmethod.latin.LatinIME", 4:"com.jb.emoji.gokeyboard/com.jb.gokeyboard.GoKeyboard",5:"com.pinssible.fancykey/.FancyService", 6:"com.sec.android.inputmethod/.SamsungKeypad"}
+keyboardsPaths = {  1:"com.touchtype.swiftkey/com.touchtype.KeyboardService",
+                    2:"com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+                    3:"panda.keyboard.emoji.theme/com.android.inputmethod.latin.LatinIME",
+                    4:"com.jb.emoji.gokeyboard/com.jb.gokeyboard.GoKeyboard",
+                    5:"com.pinssible.fancykey/.FancyService",
+                    6:"com.sec.android.inputmethod/.SamsungKeypad"}
 all_keyboards = {}
 
 def show_all_keyboards():
