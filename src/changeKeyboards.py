@@ -5,7 +5,7 @@ import sys
 import os
 import subprocess
 import io
-
+import json
 
 #from com.android.monkeyrunner import MonkeyRunner, MonkeyDevice
 sys.path.append("/Users/tiagofraga/Desktop/HASLAB/Software/AndroidViewClient-15.8.1/src")
@@ -15,6 +15,8 @@ from os import sys
 import time
 
 adbcl = adbclient.AdbClient('.*', settransport=True)
+
+'''
 keyboardsPaths ={   
                     1:"com.touchtype.swiftkey",
                     2:"com.google.android.inputmethod.latin",
@@ -32,6 +34,13 @@ all_keyboards = {
     "com.pinssible.fancykey.gifkeyboard":"fancykey",
     "com.sec.android.inputmethod":"samsung"
 }
+
+'''
+
+def get_all_keyboards():
+    return (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n"))
+
+
 
 def show_all_keyboards():
     for keyboard in (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n")):
@@ -79,16 +88,31 @@ def installAPK(apks_folder):
         else:
             print ( " ta male")
 
-def uninstallAllKeyboards():
-    adbcl.shell(" pm uninstall " +  " ".join(all_apks) )
+def uninstallAllKeyboards(all_apks):
+    #print ("pm uninstall " +  " ".join(all_apks) )
+    #adbcl.shell(" pm uninstall " +  " ".join(all_apks) )
+    pattern = re.compile("com.google.android")
+    for x in all_apks:
+        if not pattern.match(x):
+            print("uninstalling " + x)
+            uninstallKeyboard(x)
 
 def uninstallKeyboard( keyboard_package):
     adbcl.shell(" pm uninstall " + keyboard_package )
 
-
+def loadkeyboardInfo():
+    with open(os.getcwd()+'/resources/keyboards.json') as json_file:
+        data = json.load(json_file)
+        keyboardsPaths=data['keyboards_index']
+        all_keyboards=data['keyboards_name']
+        print(keyboardsPaths)
+        print(all_keyboards)
+        return keyboardsPaths, all_keyboards
 
 if __name__== "__main__":
+    keyboardsPaths, all_keyboards = loadkeyboardInfo()
     android_version = detect_android_version()
+    #init(keyboardsPaths, all_keyboards)
     print( "connected device has version %s of Android" % android_version )
     bol = False
     while bol == False:
@@ -101,13 +125,12 @@ if __name__== "__main__":
         num1 = int(input())
         if num1 == 1:
             show_all_keyboards()
-            bol = True
+            #bol = True
         elif num1 == 2:
             show_current_keyboard()
-            bol = True
+            #bol = True
         elif num1 == 3:
             keys = keyboardsPaths.keys()
-            print(keyboardsPaths)
             print("Choose a Keyboard:")
             num2 = int(input())
             if num2 in keys:
@@ -121,23 +144,23 @@ if __name__== "__main__":
                 print("Choose a Keyboard:")
                 for x,y in keyboardsPaths.items():
                     print("-> %s - %s" %(x,all_keyboards.get(y)))
-                num2 = int(input())
+                num2 = str(int(input()))
                 if num2 in keyboardsPaths.keys():
-                    dir_path = os.getcwd() + "/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get(num2) )
+                    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((num2)) )
                     if os.path.isdir(dir_path) :
                         print ( " installing apk(s) suited for version %s" % android_version)
                         installAPK(dir_path)
                     else:
-                        print("No APKs available for version " + android_version + " folder /keyboard_apks/Android_" + android_version + " not found")
+                        print("No APKs available for version " + android_version + " folder /resources/apks/keyboard_apks/Android_" + android_version + " not found")
         elif num1 == 5:
             for x,y in keyboardsPaths.items():
                     print("-> %s - %s" %(x,all_keyboards.get(y)))
             print("-> %d - %s"  %(len(keyboardsPaths.keys())+1,"all"))
-            num2 = int(input())
+            num2 = str(int(input()))
             if num2 in keyboardsPaths.keys():
-                uninstallKeyboard(keyboardsPaths[num2])
-            elif num2==len(keyboardsPaths.keys())+1:
-                uninstallAllKeyboards()
+                uninstallKeyboard(keyboardsPaths[(num2)])
+            elif int(num2)==len(keyboardsPaths.keys())+1:
+                uninstallAllKeyboards(get_all_keyboards())
         else:
             print("Wrong!!")
 
