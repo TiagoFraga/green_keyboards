@@ -189,7 +189,7 @@ def getDeviceResourcesState(arg):
     file_to_write.write(json_string)
     file_to_write.close()
     '''
-    os.system("./getDeviceResourcesState.sh " + arg)
+    os.system("./src/getDeviceResourcesState.sh " + arg)
     print(colored("device resources state are collected","green"))
     time.sleep(1)
 
