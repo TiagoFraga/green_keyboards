@@ -24,7 +24,7 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 1
+nr_tests = 25
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 trace="-TestOriented"
@@ -64,7 +64,8 @@ def loadkeyboardInfo():
         data = json.load(json_file)
         keyboardsPaths=data['keyboards_index']
         all_keyboards=data['keyboards_name']
-        return keyboardsPaths, all_keyboards
+        keyboardsPackages=data['keyboards_full']
+        return keyboardsPaths, all_keyboards, keyboardsPackages
 
 def initLocalResultsDir(keyboard_name, android_version):
     output_dir_1 =  os.getcwd() + output_dir +"/"
@@ -122,14 +123,15 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index):
 
 if __name__== "__main__":
     if len(sys.argv) > 1:
-        keyboardsPaths, all_keyboards = loadkeyboardInfo()
+        keyboardsPaths, all_keyboards,keyboardsPackages = loadkeyboardInfo()
         input_text = sys.argv[1]
         sys.argv.pop(1)
         adbcl = adbclient.AdbClient('.*', settransport=True)
         print(colored("***** [KEYBOARD TEST] *****","blue"))
         for key in keyboardsPaths:
             #change.ins
-            keyboard.setKeyboard(adbcl,keyboardsPaths[key])
+            print(keyboardsPackages[key])
+            keyboard.setKeyboard(adbcl,keyboardsPackages[key])
             script_index = 0
             while script_index < nr_tests:
                 script_index+=1
