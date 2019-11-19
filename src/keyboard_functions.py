@@ -9,6 +9,7 @@ import time
 import datetime
 import json
 import string
+#from edited_edit_text import EditedEditText
 from termcolor import colored
 from difflib import SequenceMatcher
 
@@ -109,35 +110,94 @@ def text_to_chars(text):
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
+def cleanList(a):
+    new_a = []
+    for word in a:
+        if word != ' ' and word != '' and word != '\n':
+            new_a.append(word)
+    
+    return new_a
+
+
+'''
+def my_similar(written_words,espected_words):
+    total_espected = len(espected_words)
+    total_written = len(written_words)
+    correct = 0
+    if total_espected == total_written:
+        for i, val in enumerate(espected_words):
+            e_word = espected_words[i]
+            w_word = written_words[i]
+            if (e_word == w_word):
+                correct = correct + 1
+    elif total_espected < total_written:
+        
+    else:
+        accuracy = -1
+'''
+
+
+
 def my_similar(written_words, espected_words):
-    total = 0
+    total_espected = len(espected_words)
+    total_written = len(written_words)
+
     correct = 0
     j = 0
-    for i, val in enumerate(written_words):
-        w_word = written_words[i]
-        e_word = espected_words[j]    
-        if (w_word != ' ') and (e_word != ' '):
-            if (w_word != '\n') and (e_word != '\n'):
-                print(w_word)
-                print(e_word)
-                if w_word[0] == e_word[0]:
-                    if (w_word == e_word):
-                        correct = correct + 1
-                        total = total + 1
-                        j = j+1
-                    else: 
-                        total = total + 1
-                        j=j+1
-    accuracy = (correct / total) * 100
+    for i, val in enumerate(espected_words):
+        e_word = espected_words[i]
+        bol = False
+        while bol == False:
+            w_word = written_words[j]
+            if len(w_word) > 1:
+                if (w_word != '') and (e_word != ''):    
+                    if (w_word != ' ') and (e_word != ' '):
+                        if (w_word != '\n') and (e_word != '\n'):
+                            if w_word[0] == e_word[0]:
+                                bol = True
+                                if (w_word == e_word):
+                                    correct = correct + 1
+                                    j = j+1
+                                else: 
+                                    j=j+1
+                            else:
+                                j=j+1
+            else:
+                j=j+1
+    accuracy = (correct / total_espected) * 100
 
-def writeAccuracy(written, espected,script_index):
+def getSelectedWords(espected_words,suggested_length):
+    new = []
+    for word in espected_words:
+        word_str = word.encode('ascii','replace')
+        if word_str != ' ' and word_str !='\n' and word_str != '':
+            string = ""
+            tamanho = len(word_str)
+            tamanho_to_write = (int(tamanho) * int(suggested_length)) / 100
+            if tamanho_to_write == 0:
+               tamanho_to_write = 1
+            for c in word_str:
+                if tamanho_to_write > 0:
+                   string = string + c 
+                   tamanho_to_write = tamanho_to_write - 1
+            new.append(string)
+    return new
+    
+
+
+def writeAccuracy(written, espected,script_index,suggested_length):
     print(colored("Calculating accuracy","yellow"))
     written_words = text_to_words(written)
     espected_words = text_to_words(espected)
-    accuracy = similar(written,espected)
+    #accuracy = similar(written_words,espected_words)
+    #accuracy = list_similar(written_words,espected_words)
     #accuracy = my_similar(written_words,espected_words)
+    selected_words = getSelectedWords(espected_words,suggested_length)
+    print(cleanList(written_words))
+    print(cleanList(espected_words))
+    print(cleanList(selected_words))
     f = open("./Accuracy/"+script_index+".txt","w+")
-    string = written + "\n\n" + "[Accuracy] = " + str(accuracy)
+    string = "[Espected] \n" + str(cleanList(espected_words)) + "\n\n" + "[Selected] \n " + str(selected_words) + "\n\n" + "[Written] \n " + str(cleanList(written_words)) + "\n\n"  
     f.write(string)
     f.close()
     print(colored("Calculating accuracy done","green"))
@@ -149,7 +209,6 @@ def writeAccuracy(written, espected,script_index):
 ## Device State Auxiliar Functions 
 ##################################
   
-
 def getDeviceState(arg):
     print(colored("collecting device specs","yellow"))
     os.system("./src/getDeviceState.sh " + arg)
@@ -161,7 +220,6 @@ def getDeviceSpecs(arg):
     os.system("./src/getDeviceSpecs.sh " + arg)
     print(colored("device specs collected","green"))
     time.sleep(1)
-
 
 
 def getDeviceResourcesState(arg):
@@ -203,7 +261,7 @@ def getDeviceResourcesState(arg):
     file_to_write.write(json_string)
     file_to_write.close()
     '''
-    os.system("./src/getDeviceResourcesState.sh " + arg)
+    os.system("./getDeviceResourcesState.sh " + arg)
     print(colored("device resources state are collected","green"))
     time.sleep(1)
 
@@ -298,20 +356,26 @@ def writeLines(text,lines_to_insert):
 def writeWords(text,words_to_insert):
     for word in words_to_insert:
         word_str = word.encode('ascii','replace')
+        #edited_view = EditedEditText(text)
         if word_str == '\n':
+            #edited_view.type_without_sleep('\n',alreadyTouched=True)
             text.type_without_sleep('\n',alreadyTouched=True)
             #time.sleep(1)
         else:
+            #edited_view.type_without_sleep(word_str,alreadyTouched=True)
             text.type_without_sleep(word_str,alreadyTouched=True)
         #time.sleep(1)
 
 def writeSuggestedWords(vc,text,words_to_insert,coords,suggested_length):
     for word in words_to_insert:
         word_str = word.encode('ascii','replace')
+        #edited_view = EditedEditText(text)
         if word_str == '\n':
+            #edited_view.type_without_sleep('\n',alreadyTouched=True)
             text.type_without_sleep('\n',alreadyTouched=True)
             #time.sleep(1)
         elif word_str == ' ':
+            #edited_view.type_without_sleep(' ',alreadyTouched=True)
             text.type_without_sleep(' ',alreadyTouched=True)
         else:
             tamanho = len(word_str)
@@ -320,6 +384,7 @@ def writeSuggestedWords(vc,text,words_to_insert,coords,suggested_length):
                 tamanho_to_write = 1
             for c in word_str:
                 if tamanho_to_write > 0:
+                    #edited_view.type_without_sleep(c,alreadyTouched=True)
                     text.type_without_sleep(c,alreadyTouched=True)
                     tamanho_to_write = tamanho_to_write - 1
                 elif tamanho_to_write == 0:
@@ -379,6 +444,7 @@ def cleaningAppCache(adbcl,package):
 ##########################
 ## Data Auxiliar Functions 
 ##########################
+
 '''
 def getDataResult(deviceDir,localDir,script_index,SED_COMMAND,MV_COMMAND):
     print(colored("collecting data ...","yellow"))
@@ -388,7 +454,6 @@ def getDataResult(deviceDir,localDir,script_index,SED_COMMAND,MV_COMMAND):
     os.system("adb shell ls " + deviceDir + " | " + SED_COMMAND + " -r 's/[\r]+//g' | egrep -Eio TracedMethods.txt | xargs -I{} adb pull " + deviceDir + "/{} " + localDir)
     os.system(MV_COMMAND + " " + localDir + "/TracedMethods.txt " + localDir + "/TracedMethods" + str(script_index) + ".txt")
     os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + localDir + "/GreendroidResultTrace" + str(script_index) +".csv")
-
 '''
 
 ##########################
