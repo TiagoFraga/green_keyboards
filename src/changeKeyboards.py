@@ -8,7 +8,8 @@ import io
 import json
 
 #from com.android.monkeyrunner import MonkeyRunner, MonkeyDevice
-sys.path.append("/Users/tiagofraga/Desktop/HASLAB/Software/AndroidViewClient-15.8.1/src")
+#sys.path.append("/Users/tiagofraga/Desktop/HASLAB/Software/AndroidViewClient-15.8.1/src")
+sys.path.append(os.getcwd()+"src/")
 from com.dtmilano.android.viewclient import ViewClient
 from com.dtmilano.android.adb import adbclient
 from os import sys
@@ -49,9 +50,9 @@ def show_all_keyboards():
 def show_current_keyboard():
     print(adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d="))
 
-def set_keyboard(key):
-    path = keyboardsPaths.get(key)
-    adbcl.shell("ime set " + path) 
+def set_keyboard(keyboards_full_definition):
+    #path = keyboardsPaths.get(key)
+    adbcl.shell("ime set " + keyboards_full_definition) 
 
 def detect_android_version():
     x = adbcl.getProperty("ro.build.software.version")
@@ -70,7 +71,7 @@ def installAPK(apks_folder):
         print ( "erro")
     elif nr_apks ==1:
         print ( " installing 1 apk " )
-        result =  subprocess.call( "adb install-multiple  -r " + " ".join(all_apks), shell=True)
+        result =  subprocess.call( "adb install   " + " ".join(all_apks), shell=True)
         if result==0:
             print( " Keyboard installed")
         #adbcl.shell( " install-multiple  -r " + " ".join(all_apks)) # nao da nao sei pk 
@@ -80,8 +81,8 @@ def installAPK(apks_folder):
     else:
         # several
         print ( " installing " + str(nr_apks) + " apks " )
-        print (  " install-multiple  -r " + " ".join(all_apks))
-        result =  subprocess.call( "adb install-multiple  -r " + " ".join(all_apks), shell=True)
+        print (  " install-multiple " + " ".join(all_apks))
+        result =  subprocess.call( "adb install-multiple " + " ".join(all_apks), shell=True)
         if result==0:
             print( " Keyboard installed")
         #adbcl.shell( " install-multiple  -r " + " ".join(all_apks)) # nao da nao sei pk 
@@ -105,12 +106,18 @@ def loadkeyboardInfo():
         data = json.load(json_file)
         keyboardsPaths=data['keyboards_index']
         all_keyboards=data['keyboards_name']
-        print(keyboardsPaths)
-        print(all_keyboards)
-        return keyboardsPaths, all_keyboards
+        full_keyboards = data['keyboards_full']
+        return keyboardsPaths, all_keyboards, full_keyboards
+
+def installKeyboard(android_version, keyboard_index, keyboardsPaths, all_keyboards ):
+    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((keyboard_index)) )
+    if os.path.isdir(dir_path) :
+        print ( " installing apk(s) suited for version %s" % android_version)
+        installAPK(dir_path)
+
 
 if __name__== "__main__":
-    keyboardsPaths, all_keyboards = loadkeyboardInfo()
+    keyboardsPaths, all_keyboards, full_keyboards = loadkeyboardInfo()
     android_version = detect_android_version()
     #init(keyboardsPaths, all_keyboards)
     print( "connected device has version %s of Android" % android_version )
@@ -130,11 +137,12 @@ if __name__== "__main__":
             show_current_keyboard()
             #bol = True
         elif num1 == 3:
-            keys = keyboardsPaths.keys()
+            for x,y in keyboardsPaths.items():
+                print("-> %s - %s" %(x,all_keyboards.get(y)))
             print("Choose a Keyboard:")
-            num2 = int(input())
-            if num2 in keys:
-                set_keyboard(num2)
+            num2 = str(int(input()))
+            if num2 in keyboardsPaths.keys():
+                set_keyboard(full_keyboards[num2])
                 print("Your current keyboard is: ")
                 show_current_keyboard()
                 bol = True

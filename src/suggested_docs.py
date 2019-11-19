@@ -9,7 +9,7 @@ import datetime
 import json
 import keyboard_functions as keyboard
 
-sys.path.append("/Users/tiagofraga/Desktop/HASLAB/Software/AndroidViewClient-15.8.1/src")
+sys.path.append(os.getcwd()+"src/")
 from com.dtmilano.android.viewclient import ViewClient
 from com.dtmilano.android.adb import adbclient
 from termcolor import colored

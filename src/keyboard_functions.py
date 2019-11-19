@@ -150,6 +150,20 @@ def writeAccuracy(written, espected,script_index):
 ##################################
   
 
+def getDeviceState(arg):
+    print(colored("collecting device specs","yellow"))
+    os.system("./src/getDeviceState.sh " + arg)
+    print(colored("device specs collected","green"))
+    time.sleep(1)
+
+def getDeviceSpecs(arg):
+    print(colored("collecting device specs","yellow"))
+    os.system("./src/getDeviceSpecs.sh " + arg)
+    print(colored("device specs collected","green"))
+    time.sleep(1)
+
+
+
 def getDeviceResourcesState(arg):
     # three numbers represent averages over progressively longer periods of time (one, five, and fifteen minute averages)
     print(colored("collecting device resources state","yellow"))
@@ -200,7 +214,7 @@ def getDeviceResourcesState(arg):
 ## Trepn Profiler Auxiliar Functions 
 #################################### 
 
-
+'''
 def initProfiler(adbcl,deviceDir):
     print(colored("initializing the profiler","yellow"))
     adbcl.shell("monkey -p com.quicinc.trepn -c android.intent.category.LAUNCHER 1")
@@ -236,7 +250,7 @@ def exitProfiler(adbcl):
 
 def activateFlags(adbcl,deviceDir):
     adbcl.shell("echo 1 > "+deviceDir+"/GDflag")
-
+'''
 
 #########################
 ## App Auxiliar Functions 
@@ -365,7 +379,7 @@ def cleaningAppCache(adbcl,package):
 ##########################
 ## Data Auxiliar Functions 
 ##########################
-
+'''
 def getDataResult(deviceDir,localDir,script_index,SED_COMMAND,MV_COMMAND):
     print(colored("collecting data ...","yellow"))
     time.sleep(10)
@@ -375,6 +389,7 @@ def getDataResult(deviceDir,localDir,script_index,SED_COMMAND,MV_COMMAND):
     os.system(MV_COMMAND + " " + localDir + "/TracedMethods.txt " + localDir + "/TracedMethods" + str(script_index) + ".txt")
     os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + localDir + "/GreendroidResultTrace" + str(script_index) +".csv")
 
+'''
 
 ##########################
 ## Keyboard Auxiliar Functions 
