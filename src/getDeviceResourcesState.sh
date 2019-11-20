@@ -16,6 +16,10 @@ battery_level=$(echo "$battery" | grep "level:" | cut -f2 -d\: | sed "s/ //g")
 keyboard=$(adb shell dumpsys  input_method | grep "mCurMethodId" | cut -f2 -d= )
 battery_temperature=$(echo "$battery" | grep "temperature:" | cut -f2 -d\: | sed "s/ //g")
 battery_voltage=$(echo "$battery" | grep "voltage:" | tail -1 | cut -f2 -d\: | sed "s/ //g")
+wifi_on=$(adb shell settings get global wifi_on)
+mobile_data_on=$(adb shell settings get global mobile_data0)
+
+
 timestamp=$(date +%s)
 echo "
     {	\"timestamp\": \"$timestamp\",
@@ -28,4 +32,5 @@ echo "
 		\"battery_temperature\": \"$battery_temperature\",
 		\"keyboard\": \"$keyboard\", 
 		\"battery_voltage\": \"$battery_voltage\"
+
 	}" > "$resState"

@@ -61,16 +61,8 @@ def getOS():
 #######################################################################################
 
 def analyzeResults(results_path):
-        os.system( "./resources/jars/AnaDroidAnalyzer.jar -TestOriented"+ results_path + "-monkeyrunner NONE" )
+        os.system( "java -jar ./resources/jars/AnaDroidAnalyzer.jar -TestOriented "+ results_path + " -none NONE" )
 
-
-def loadkeyboardInfo():
-    with open(os.getcwd()+'/resources/keyboards.json') as json_file:
-        data = json.load(json_file)
-        keyboardsPaths=data['keyboards_index']
-        all_keyboards=data['keyboards_name']
-        keyboardsPackages=data['keyboards_full']
-        return keyboardsPaths, all_keyboards, keyboardsPackages
 
 def initLocalResultsDir(keyboard_name, android_version):
     output_dir_1 =  os.getcwd() + output_dir +"/"
@@ -146,24 +138,30 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index):
 if __name__== "__main__":
     if len(sys.argv) > 1:
         bol = False
-        keyboardsPaths, all_keyboards,keyboardsPackages = loadkeyboardInfo()
+        keyboard_dict =  change.loadkeyboardInfo()
+        installed_keyboards = change.get_installed_keyboards(keyboard_dict.values())    
+        installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
+        all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
         input_text = sys.argv[1]
         sys.argv.pop(1)
         adbcl = adbclient.AdbClient('.*', settransport=True)
         android_version = change.detect_android_version()
         print(colored("***** [KEYBOARD TEST] *****","blue"))
-        option = change.get_current_keyboard()
-        change.installKeyboard(android_version, str(option), keyboardsPaths, all_keyboards )
-        print(keyboardsPackages[str(option)])
-        keyboard.setKeyboard(adbcl,keyboardsPackages[str(option)])
+        current_keyboard = change.get_current_keyboard()
+        print("using keyboard " + current_keyboard)
+        #change.installKeyboard(android_version, str(option), keyboardsPaths, all_keyboards )
+        #print(keyboardsPackages[str(option)])
+        #keyboard.setKeyboard(adbcl,keyboardsPackages[str(option)])
         script_index = 0
         while script_index < nr_tests:
             script_index+=1
             #output_filename = str(key) + str(++script_index)
-            keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
-        change.uninstallKeyboard(keyboardsPaths[str(option)])
+            #keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
+            keyboard_test(adbcl, input_text , current_keyboard ,script_index)
+        
+        #change.uninstallKeyboard(current_keyboard)
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
-        analyzeResults(initLocalResultsDir(all_keyboards[keyboardsPaths[str(option)]],android_version))
+        analyzeResults(initLocalResultsDir(current_keyboard,android_version))
         alert()
         
     else:

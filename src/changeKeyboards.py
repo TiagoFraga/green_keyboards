@@ -23,25 +23,28 @@ def get_all_keyboards():
     return (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n"))
 
 
-def show_all_keyboards():
+def get_installed_keyboards(keyboard_package_list):
+    keyboards_packages= list( map(lambda it: it['package'] , keyboard_package_list ))
+    l=[]
     for keyboard in (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n")):
-        print(keyboard)
-
+        #print(keyboard)
+        if str(keyboard).strip() in keyboards_packages:
+            l.append(str(keyboard).strip())
+            #print("->"+keyboard_package_list[str(keyboard).strip() ])
+    print(l)
+    return l
 def show_current_keyboard():
     print(adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d="))
 
+
 def set_keyboard(keyboards_full_definition):
-    #path = keyboardsPaths.get(key)
+    #path = keyboardsIndex.get(key)
     adbcl.shell("ime set " + keyboards_full_definition) 
 
 def get_current_keyboard():
-    keyboardsPaths, all_keyboards, full_keyboards = loadkeyboardInfo()
-    keyboard = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
-    op = -1
-    for key in full_keyboards:
-        if(str(keyboard.split("\n")[0]).strip() == str(full_keyboards[key])):
-            op = key
-    return op
+    keyboard_dict = loadkeyboardInfo()
+    current_keyboard = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
+    return list( map( lambda x : str(x['name']) ,  filter(lambda it : str(it['ime']) == str(current_keyboard).strip() , keyboard_dict.values())))[0]
 
 
 
@@ -97,46 +100,60 @@ def uninstallKeyboard( keyboard_package):
     adbcl.shell("pm uninstall " + keyboard_package )
 
 def loadkeyboardInfo():
-    with open(os.getcwd()+'/resources/keyboards.json') as json_file:
+    with open(os.getcwd()+'/resources/keyboards2.json') as json_file:
         data = json.load(json_file)
-        keyboardsPaths=data['keyboards_index']
-        all_keyboards=data['keyboards_name']
-        full_keyboards = data['keyboards_full']
-        return keyboardsPaths, all_keyboards, full_keyboards
+        #keyboardsIndex=data['keyboards_index']
+        #keyboards_name_dict=data['keyboards_name']
+        #full_keyboards = data['keyboards_full']
+        #return keyboardsIndex, keyboards_name_dict, full_keyboards
+        return data
 
-def installKeyboard(android_version, keyboard_index, keyboardsPaths, all_keyboards ):
-    print(colored("installing keyboard " + str(keyboard_index),"yellow"))
-    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((keyboard_index)) )
+def installKeyboard(android_version, keyboard_name):
+    print(colored("installing  " + keyboard_name,"yellow"))
+    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + keyboard_name
     if os.path.isdir(dir_path) :
         print ("installing apk(s) suited for version %s" % android_version)
         installAPK(dir_path)
 
 
+
+def show_option_menu():
+    print("######################################")
+    print("1 -> Show installed Keyboards")
+    print("2 -> Show current Keyboard")
+    print("3 -> Set Keyboard")
+    print("4 -> Install Keyboard")
+    print("5 -> Uninstall Keyboards")
+
 if __name__== "__main__":
-    keyboardsPaths, all_keyboards, full_keyboards = loadkeyboardInfo()
+    #keyboardsIndex, keyboards_name_dict, full_keyboards = loadkeyboardInfo()
+    keyboard_dict = loadkeyboardInfo()    
+    installed_keyboards = get_installed_keyboards(keyboard_dict.values())    
     android_version = detect_android_version()
-    #init(keyboardsPaths, all_keyboards)
+    installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
+    all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
+    #init(keyboardsIndex, keyboards_name_dict)
     print( "connected device has version %s of Android" % android_version )
     bol = False
     while bol == False:
-        print("######################################")
-        print("1 -> Show installed Keyboards")
-        print("2 -> Show current Keyboard")
-        print("3 -> Set Keyboard")
-        print("4 -> Install Keyboard")
-        print("5 -> Uninstall Keyboards")
+        show_option_menu()
         num1 = int(input())
         if num1 == 1:
-            show_all_keyboards()
+            print("installed keyboards:")
+            for f in installed_keyboard_names:
+                print("-> "+f)
         elif num1 == 2:
             show_current_keyboard()
         elif num1 == 3:
-            for x,y in keyboardsPaths.items():
-                print("-> %s - %s" %(x,all_keyboards.get(y)))
+            print("installed keyboards:")
+            for x in xrange(0, len(installed_keyboard_names)):
+                print("-> %s - %s" %(x, installed_keyboard_names[x]))
             print("Choose a Keyboard:")
-            num2 = str(int(input()))
-            if num2 in keyboardsPaths.keys():
-                set_keyboard(full_keyboards[num2])
+            num2 = int(input())
+            if num2 < len(installed_keyboards):
+                keyboard_ime = list( map( lambda it : str(it['ime']),  filter(lambda it : str(it['name']) == installed_keyboard_names[num2] , keyboard_dict.values() )))[0]
+                print(keyboard_ime)
+                set_keyboard(keyboard_ime)
                 print("Your current keyboard is: ")
                 show_current_keyboard()
                 bol = True
@@ -144,26 +161,29 @@ if __name__== "__main__":
                 print("Wrong option!!")
         elif num1 == 4:
                 print("Choose a Keyboard:")
-                for x,y in keyboardsPaths.items():
-                    print("-> %s - %s" %(x,all_keyboards.get(y)))
-                num2 = str(int(input()))
-                if num2 in keyboardsPaths.keys():
-                    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((num2)) )
+                for x in xrange(0, len(all_considered_keyboards)):
+                    print("-> %s - %s" %(x, all_considered_keyboards[x]))
+                num2 = int(input())
+                if num2 < len(all_considered_keyboards):
+                    print( "Installing " + all_considered_keyboards[num2])
+                    dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_considered_keyboards[num2]
                     if os.path.isdir(dir_path) :
                         print ( " installing apk(s) suited for version %s" % android_version)
                         installAPK(dir_path)
+                        installed_keyboards = get_installed_keyboards(keyboard_dict.values())    
                     else:
                         print("No APKs available for version " + android_version + " folder /resources/apks/keyboard_apks/Android_" + android_version + " not found")
         elif num1 == 5:
-            for x,y in keyboardsPaths.items():
-                    print("-> %s - %s" %(x,all_keyboards.get(y)))
-            print("-> %d - %s"  %(len(keyboardsPaths.keys())+1,"all"))
-            num2 = str(int(input()))
-            if num2 in keyboardsPaths.keys():
-                uninstallKeyboard(keyboardsPaths[(num2)])
-            elif int(num2)==len(keyboardsPaths.keys())+1:
-                uninstallAllKeyboards(get_all_keyboards())
+            for x in xrange(0, len(installed_keyboard_names)):
+                print("-> %s - %s" %(x, installed_keyboard_names[x]))
+            print("-> %d - %s"  %(len(installed_keyboard_names),"all"))
+            num2 = int(input())
+            if num2 < len(installed_keyboards):
+                uninstallKeyboard(installed_keyboards[num2])
+            elif int(num2)==len(installed_keyboard_names):
+                print(installed_keyboards)
+                uninstallAllKeyboards(installed_keyboards)
+                installed_keyboards = get_installed_keyboards(keyboard_dict.values())    
         else:
             print("Wrong!!")
-
-
+        
