@@ -13,34 +13,14 @@ sys.path.append(os.getcwd()+"src/")
 from com.dtmilano.android.viewclient import ViewClient
 from com.dtmilano.android.adb import adbclient
 from os import sys
+from termcolor import colored
 import time
 
 adbcl = adbclient.AdbClient('.*', settransport=True)
 
-'''
-keyboardsPaths ={   
-                    1:"com.touchtype.swiftkey",
-                    2:"com.google.android.inputmethod.latin",
-                    3:"panda.keyboard.emoji.theme",
-                    4:"com.jb.emoji.gokeyboard",
-                    5:"com.pinssible.fancykey.gifkeyboard",
-                    6:"com.sec.android.inputmethod"
-                }
-
-all_keyboards = {
-    "com.touchtype.swiftkey":"swiftkey",
-    "com.google.android.inputmethod.latin":"google",
-    "panda.keyboard.emoji.theme":"cheetah",
-    "com.jb.emoji.gokeyboard":"go",
-    "com.pinssible.fancykey.gifkeyboard":"fancykey",
-    "com.sec.android.inputmethod":"samsung"
-}
-
-'''
 
 def get_all_keyboards():
     return (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n"))
-
 
 
 def show_all_keyboards():
@@ -55,7 +35,6 @@ def set_keyboard(keyboards_full_definition):
     adbcl.shell("ime set " + keyboards_full_definition) 
 
 
-
 def detect_device_model():
     x = adbcl.getProperty("ro.product.model")
     return (str(x).replace(" ",""))
@@ -65,36 +44,34 @@ def detect_android_version():
     x = adbcl.getProperty("ro.build.version.release")
     return (str(x).replace("Android","").split(".")[0])
 
-    #for x in adbcl.shell("  getprop ro.build.software.version | sed \'s/Android//g\' | cut -f1 -d_ | cut -f1 -d." ):
-    #"    print ("macaco " + str(x))
 
 def installAPK(apks_folder):
     pattern = re.compile(".*.apk$")
     file_list = [os.path.join(apks_folder, f) for f in os.listdir(apks_folder)]
-    print(file_list)
+    #print(file_list)
     all_apks = filter(lambda it: pattern.match(str(it)) , file_list )
     nr_apks = len(all_apks)
     if nr_apks==0:
-        print ( "erro")
+        print (colored("[Erro] - Number of apks null","red"))
     elif nr_apks ==1:
-        print ( " installing 1 apk " )
-        result =  subprocess.call( "adb install   " + " ".join(all_apks), shell=True)
+        print (colored("installing 1 apk","yellow"))
+        result = subprocess.call("adb install   " + " ".join(all_apks), shell=True)
         if result==0:
-            print( " Keyboard installed")
+            print(colored("Keyboard installed","green"))
         #adbcl.shell( " install-multiple  -r " + " ".join(all_apks)) # nao da nao sei pk 
         else:
-            print ( " ta male")
+            print (colored("[Error] - Error installing apk(s)","red"))
         #adbcl.shell( " install -r " + "".join(all_apks) )
     else:
         # several
-        print ( " installing " + str(nr_apks) + " apks " )
-        print (  " install-multiple " + " ".join(all_apks))
+        print (colored("Installing " + str(nr_apks) + " apks ","yellow"))
+        print (colored("Install-multiple " + " ".join(all_apks),"yellow"))
         result =  subprocess.call( "adb install-multiple " + " ".join(all_apks), shell=True)
         if result==0:
-            print( " Keyboard installed")
+            print(colored("Keyboard installed","green"))
         #adbcl.shell( " install-multiple  -r " + " ".join(all_apks)) # nao da nao sei pk 
         else:
-            print ( " ta male")
+            print (colored("[Error] - Error installing apk(s)","red"))
 
 def uninstallAllKeyboards(all_apks):
     #print ("pm uninstall " +  " ".join(all_apks) )
@@ -102,11 +79,11 @@ def uninstallAllKeyboards(all_apks):
     pattern = re.compile("com.google.android")
     for x in all_apks:
         if not pattern.match(x):
-            print("uninstalling " + x)
+            print(colored("Uninstalling " + x,"yellow"))
             uninstallKeyboard(x)
 
 def uninstallKeyboard( keyboard_package):
-    print(" bou desinstalar o" + keyboard_package)
+    print(colored("Going to unistall" + keyboard_package),"yellow")
     adbcl.shell(" pm uninstall " + keyboard_package )
 
 def loadkeyboardInfo():
@@ -118,10 +95,10 @@ def loadkeyboardInfo():
         return keyboardsPaths, all_keyboards, full_keyboards
 
 def installKeyboard(android_version, keyboard_index, keyboardsPaths, all_keyboards ):
-    print("installing keyboard " + keyboard_index)
+    print(colored("installing keyboard " + str(keyboard_index),"yellow"))
     dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((keyboard_index)) )
     if os.path.isdir(dir_path) :
-        print ( " installing apk(s) suited for version %s" % android_version)
+        print ("installing apk(s) suited for version %s" % android_version)
         installAPK(dir_path)
 
 
