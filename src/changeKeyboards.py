@@ -34,6 +34,16 @@ def set_keyboard(keyboards_full_definition):
     #path = keyboardsPaths.get(key)
     adbcl.shell("ime set " + keyboards_full_definition) 
 
+def get_current_keyboard():
+    keyboardsPaths, all_keyboards, full_keyboards = loadkeyboardInfo()
+    keyboard = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
+    op = -1
+    for key in full_keyboards:
+        if(str(keyboard.split("\n")[0]).strip() == str(full_keyboards[key])):
+            op = key
+    return op
+
+
 
 def detect_device_model():
     x = adbcl.getProperty("ro.product.model")
@@ -83,8 +93,8 @@ def uninstallAllKeyboards(all_apks):
             uninstallKeyboard(x)
 
 def uninstallKeyboard( keyboard_package):
-    print(colored("Going to unistall" + keyboard_package),"yellow")
-    adbcl.shell(" pm uninstall " + keyboard_package )
+    print(colored("Going to unistall" + keyboard_package,"yellow"))
+    adbcl.shell("pm uninstall " + keyboard_package )
 
 def loadkeyboardInfo():
     with open(os.getcwd()+'/resources/keyboards.json') as json_file:
@@ -118,10 +128,8 @@ if __name__== "__main__":
         num1 = int(input())
         if num1 == 1:
             show_all_keyboards()
-            #bol = True
         elif num1 == 2:
             show_current_keyboard()
-            #bol = True
         elif num1 == 3:
             for x,y in keyboardsPaths.items():
                 print("-> %s - %s" %(x,all_keyboards.get(y)))
@@ -133,7 +141,7 @@ if __name__== "__main__":
                 show_current_keyboard()
                 bol = True
             else:
-                print("Wrong!!")
+                print("Wrong option!!")
         elif num1 == 4:
                 print("Choose a Keyboard:")
                 for x,y in keyboardsPaths.items():

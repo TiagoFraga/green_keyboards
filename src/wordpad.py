@@ -87,12 +87,13 @@ def initLocalResultsDir(keyboard_name, android_version):
         os.mkdir(target_dir)
     return target_dir
 
-def test_samsung():
-    model = change.detect_device_model()
-    if model.startswith("SM"):
-        return True
-    else:
-        return False
+def alert():
+    timex = 30
+    while(timex > 0):
+        os.system("say -v diego ' Acorda caralho tens de mudar o teclado pilapilapilapilapilapilapilapilapilapilapila' ")
+        timex = timex -1
+        time.sleep(10)
+
 
 def keyboard_test(adbcl, input_text, keyboard_name, test_index):
     android_version = change.detect_android_version()
@@ -130,7 +131,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index):
     begin_state = local_results_dir + "/begin_state" + str(script_index) + ".json"
     keyboard.getDeviceResourcesState(begin_state)
     
-    profiler.startProfiler(adbcl)    
+    profiler.startProfiler(adbcl)    #keyboard.writeLines(box_to_insert,lines_to_insert)
     keyboard.writeWords(box_to_insert,words_to_insert)
     profiler.stopProfiler(adbcl)
     
@@ -151,34 +152,19 @@ if __name__== "__main__":
         adbcl = adbclient.AdbClient('.*', settransport=True)
         android_version = change.detect_android_version()
         print(colored("***** [KEYBOARD TEST] *****","blue"))
-        while bol == False:
-            print("[Choose Keyboard] - Please choose the keyboard you want to test!")
-            print("1 -> SwiftKey")
-            print("2 -> Gboard")
-            print("3 -> Cheetah")
-            print("4 -> Go")
-            print("5 -> FancyKey")
-            print("6 -> Samsung Keyboard")
-            option = int(input())
-            if(option != 1 and option !=2 and option !=3 and option != 4 and option != 5 and option!=6 ):
-                print(colored("[Error] - Please choose a valid option!","red"))
-            else:
-                is_samsung = test_samsung()
-                if(option == 6 and is_samsung == False):
-                    print(colored("[Error] - This device doesnt accept Samsung Keyboard!","red"))
-                else:
-                    bol = True
-                    change.installKeyboard(android_version, str(option), keyboardsPaths, all_keyboards )
-                    print(keyboardsPackages[str(option)])
-                    keyboard.setKeyboard(adbcl,keyboardsPackages[str(option)])
-                    script_index = 0
-                    while script_index < nr_tests:
-                        script_index+=1
-                        #output_filename = str(key) + str(++script_index)
-                        keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
-                    change.uninstallKeyboard(keyboardsPaths[option])
+        option = change.get_current_keyboard()
+        change.installKeyboard(android_version, str(option), keyboardsPaths, all_keyboards )
+        print(keyboardsPackages[str(option)])
+        keyboard.setKeyboard(adbcl,keyboardsPackages[str(option)])
+        script_index = 0
+        while script_index < nr_tests:
+            script_index+=1
+            #output_filename = str(key) + str(++script_index)
+            keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
+        change.uninstallKeyboard(keyboardsPaths[str(option)])
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
-        #analyzeResults(initLocalResultsDir(all_keyboards[keyboardsPaths[str(key)]],android_version))
-
+        analyzeResults(initLocalResultsDir(all_keyboards[keyboardsPaths[str(option)]],android_version))
+        alert()
+        
     else:
         print (colored("at least 2 args required (text file to insert)","red"))
