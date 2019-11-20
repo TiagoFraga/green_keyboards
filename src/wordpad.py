@@ -24,7 +24,7 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 25
+nr_tests = 1
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 trace="-TestOriented"
@@ -55,9 +55,14 @@ def getOS():
 
 
 
+
 #######################################################################################
 ## Main Functions 
 #######################################################################################
+
+def analyzeResults(results_path):
+        os.system( "./resources/jars/AnaDroidAnalyzer.jar -TestOriented"+ results_path + "-monkeyrunner NONE" )
+
 
 def loadkeyboardInfo():
     with open(os.getcwd()+'/resources/keyboards.json') as json_file:
@@ -74,7 +79,10 @@ def initLocalResultsDir(keyboard_name, android_version):
     output_dir_android = output_dir_1 +"/" + android_version + "/" 
     if not os.path.exists( output_dir_android ):
         os.mkdir(output_dir_android)
-    target_dir = output_dir_android + "/" + keyboard_name
+    model_dir = output_dir_android + "/" + change.detect_device_model()
+    if not os.path.exists( model_dir ):
+        os.mkdir(model_dir)
+    target_dir = model_dir + "/" + keyboard_name
     if not os.path.exists( target_dir ):
         os.mkdir(target_dir)
     return target_dir
@@ -106,7 +114,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index):
     #print(len(words_to_insert))
     
     #open App
-    keyboard.openApp(adbcl,package)    
+    keyboard.openApp(adbcl,package)  #wordpad  
     box_to_insert = keyboard.getEditText(vc, edit_text)
     keyboard.openKeyboard(box_to_insert)
     begin_state = local_results_dir + "/begin_state" + str(script_index) + ".json"
@@ -127,9 +135,10 @@ if __name__== "__main__":
         input_text = sys.argv[1]
         sys.argv.pop(1)
         adbcl = adbclient.AdbClient('.*', settransport=True)
+        android_version = change.detect_android_version()
         print(colored("***** [KEYBOARD TEST] *****","blue"))
         for key in keyboardsPaths:
-            #change.ins
+            change.installKeyboard(android_version, key, keyboardsPaths, all_keyboards )
             print(keyboardsPackages[key])
             keyboard.setKeyboard(adbcl,keyboardsPackages[key])
             script_index = 0
@@ -137,7 +146,9 @@ if __name__== "__main__":
                 script_index+=1
                 #output_filename = str(key) + str(++script_index)
                 keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(key)]]  ,script_index)
-            
+            change.uninstallKeyboard(keyboardsPaths[key])
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
+        #analyzeResults(initLocalResultsDir(all_keyboards[keyboardsPaths[str(key)]],android_version))
+
     else:
         print (colored("at least 2 args required (text file to insert)","red"))

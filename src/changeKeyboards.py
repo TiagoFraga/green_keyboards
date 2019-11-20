@@ -54,8 +54,15 @@ def set_keyboard(keyboards_full_definition):
     #path = keyboardsPaths.get(key)
     adbcl.shell("ime set " + keyboards_full_definition) 
 
+
+
+def detect_device_model():
+    x = adbcl.getProperty("ro.product.model")
+    return (str(x).replace(" ",""))
+
+
 def detect_android_version():
-    x = adbcl.getProperty("ro.build.software.version")
+    x = adbcl.getProperty("ro.build.version.release")
     return (str(x).replace("Android","").split(".")[0])
 
     #for x in adbcl.shell("  getprop ro.build.software.version | sed \'s/Android//g\' | cut -f1 -d_ | cut -f1 -d." ):
@@ -99,6 +106,7 @@ def uninstallAllKeyboards(all_apks):
             uninstallKeyboard(x)
 
 def uninstallKeyboard( keyboard_package):
+    print(" bou desinstalar o" + keyboard_package)
     adbcl.shell(" pm uninstall " + keyboard_package )
 
 def loadkeyboardInfo():
@@ -110,6 +118,7 @@ def loadkeyboardInfo():
         return keyboardsPaths, all_keyboards, full_keyboards
 
 def installKeyboard(android_version, keyboard_index, keyboardsPaths, all_keyboards ):
+    print("installing keyboard " + keyboard_index)
     dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + all_keyboards.get( keyboardsPaths.get((keyboard_index)) )
     if os.path.isdir(dir_path) :
         print ( " installing apk(s) suited for version %s" % android_version)
