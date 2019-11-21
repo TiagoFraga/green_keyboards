@@ -7,6 +7,7 @@ import io
 import time
 import datetime
 import json
+import shutil
 import keyboard_functions as keyboard
 from profiler import TrepnProfiler
 sys.path.append(os.getcwd()+"src/")
@@ -60,8 +61,23 @@ def getOS():
 ## Main Functions 
 #######################################################################################
 
+def setBrightness(adbcl, level ):
+    if level>0:
+        adbcl.shell (" settings put system screen_brightness_mode 1")
+    else:
+        adbcl.shell (" settings put system screen_brightness_mode 0")
+    adbcl.shell(" settings put system screen_brightness " + str(level))
+
+
 def analyzeResults(results_path):
         os.system( "java -jar ./resources/jars/AnaDroidAnalyzer.jar -TestOriented "+ results_path + " -none NONE" )
+        trimmed_date = str(datetime.datetime.now()).replace(":","").replace(" ","").replace(".","")
+        new_dir= results_path + "/" + trimmed_date
+        os.mkdir(new_dir)
+        for file in os.listdir(results_path):
+            full_file_name = os.path.join(results_path, file)
+            if os.path.isfile(full_file_name):
+                shutil.copy(full_file_name, new_dir)
 
 
 def initLocalResultsDir(keyboard_name, android_version):
@@ -77,29 +93,33 @@ def initLocalResultsDir(keyboard_name, android_version):
     target_dir = model_dir + "/" + keyboard_name
     if not os.path.exists( target_dir ):
         os.mkdir(target_dir)
+    else: 
+        #already exists, wipe files of folder
+        for file in os.listdir(target_dir):
+            full_file_name = os.path.join(target_dir, file)
+            if os.path.isfile(full_file_name):
+                os.remove(full_file_name)
     return target_dir
 
 def alert():
     timex = 30
     while(timex > 0):
-        os.system("say -v diego ' Acorda caralho tens de mudar o teclado pilapilapilapilapilapilapilapilapilapilapila' ")
+        os.system("say -v diego ' muda o teclado!!!!!' ")
         timex = timex -1
         time.sleep(10)
 
 
-def keyboard_test(adbcl, input_text, keyboard_name, test_index):
+def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_dir):
     android_version = change.detect_android_version()
-    local_results_dir = initLocalResultsDir(keyboard_name,android_version)
     keyboard.getDeviceSpecs(local_results_dir + "/device.json")
     keyboard.getDeviceState(local_results_dir + "/deviceState.json")
     print("input text -> " + input_text)
     print("keyboard name-> " + keyboard_name)
     print("test index" + str(test_index))
-    
     vc = ViewClient(*ViewClient.connectToDeviceOrExit())
     print(colored("[Testing: "+ str(script_index) + "] " + str(datetime.datetime.now()),"yellow"))
     keyboard.cleaningAppCache(adbcl,package) 
-    
+    setBrightness(adbcl, 0)
     # initialize app
     getOS()
     profiler = TrepnProfiler(deviceDir )
@@ -116,6 +136,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index):
     #print(len(words_to_insert))
     
     #open App
+    keyboard.setImmersiveMode(adbcl,package)
     keyboard.openApp(adbcl,package)  #wordpad  
     box_to_insert = keyboard.getEditText(vc, edit_text)
     keyboard.openKeyboard(box_to_insert)
@@ -148,6 +169,7 @@ if __name__== "__main__":
         android_version = change.detect_android_version()
         print(colored("***** [KEYBOARD TEST] *****","blue"))
         current_keyboard = change.get_current_keyboard()
+        local_results_dir = initLocalResultsDir(current_keyboard,android_version)
         print("using keyboard " + current_keyboard)
         #change.installKeyboard(android_version, str(option), keyboardsPaths, all_keyboards )
         #print(keyboardsPackages[str(option)])
@@ -157,12 +179,12 @@ if __name__== "__main__":
             script_index+=1
             #output_filename = str(key) + str(++script_index)
             #keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
-            keyboard_test(adbcl, input_text , current_keyboard ,script_index)
+            keyboard_test(adbcl, input_text , current_keyboard ,script_index,local_results_dir)
         
-        #change.uninstallKeyboard(current_keyboard)
+        change.uninstallKeyboard(current_keyboard)
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
-        analyzeResults(initLocalResultsDir(current_keyboard,android_version))
-        alert()
+        analyzeResults(local_results_dir)
+        #alert()
         
     else:
         print (colored("at least 2 args required (text file to insert)","red"))
