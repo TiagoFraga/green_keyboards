@@ -25,7 +25,7 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 1
+nr_tests = 10
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 trace="-TestOriented"
@@ -184,7 +184,7 @@ if __name__== "__main__":
         change.uninstallKeyboard(current_keyboard)
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
         analyzeResults(local_results_dir)
-        #alert()
+        alert()
         
     else:
         print (colored("at least 2 args required (text file to insert)","red"))
