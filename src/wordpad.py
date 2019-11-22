@@ -25,7 +25,7 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 10
+nr_tests = 1
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 trace="-TestOriented"
@@ -109,7 +109,15 @@ def alert():
         time.sleep(10)
 
 
+def calculateExtraSleep(begin, end, fmt):
+
+    d1 = datetime.datetime.strptime(str(begin),fmt)
+    d2 = datetime.datetime.strptime(str(end),fmt)
+    diff = d2-d1
+    return diff.seconds/60
+
 def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_dir):
+    fmt = '%Y-%m-%d %H:%M:%S'
     android_version = change.detect_android_version()
     keyboard.getDeviceSpecs(local_results_dir + "/device.json")
     keyboard.getDeviceState(local_results_dir + "/deviceState.json")
@@ -141,20 +149,22 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     box_to_insert = keyboard.getEditText(vc, edit_text)
     keyboard.openKeyboard(box_to_insert)
     
+    begin_time =  datetime.datetime.now().strftime(fmt)
     begin_state = local_results_dir + "/begin_state" + str(script_index) + ".json"
     keyboard.getDeviceResourcesState(begin_state)
     
     profiler.startProfiler(adbcl)    #keyboard.writeLines(box_to_insert,lines_to_insert)
     keyboard.writeWords(box_to_insert,words_to_insert)
     profiler.stopProfiler(adbcl)
-    
     end_state = local_results_dir + "/end_state" + str(script_index) + ".json"
+    end_time =  datetime.datetime.now().strftime(fmt)
     keyboard.getDeviceResourcesState(end_state)
     
     keyboard.closeApp(adbcl,package)
-    profiler.shutdownProfiler(adbcl)
-    profiler.exportResults(local_results_dir,script_index,SED_COMMAND,MV_COMMAND)
 
+    profiler.exportResults(local_results_dir,script_index,SED_COMMAND,MV_COMMAND)
+    time.sleep(2* calculateExtraSleep(begin_time, end_time, fmt))
+    profiler.shutdownProfiler(adbcl)
 
 if __name__== "__main__":
     if len(sys.argv) > 1:
@@ -179,8 +189,7 @@ if __name__== "__main__":
             script_index+=1
             #output_filename = str(key) + str(++script_index)
             #keyboard_test(adbcl, input_text , all_keyboards[keyboardsPaths[str(option)]]  ,script_index)
-            keyboard_test(adbcl, input_text , current_keyboard ,script_index,local_results_dir)
-        
+            keyboard_test(adbcl, input_text , current_keyboard ,script_index,local_results_dir)   
         change.uninstallKeyboard(current_keyboard)
         print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
         analyzeResults(local_results_dir)
