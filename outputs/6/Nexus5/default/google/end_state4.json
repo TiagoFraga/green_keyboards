@@ -1,0 +1,13 @@
+
+    {	"timestamp": "1574380182",
+		"used_cpu": "10.75/10.22/9.99",
+		"used_mem_pss": "555848", 
+		"used_mem_kernel": "79168", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "38", 
+		"battery_temperature": "290",
+		"keyboard": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME", 
+		"battery_voltage": "3812"
+
+	}

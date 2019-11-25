@@ -1,0 +1,13 @@
+
+    {	"timestamp": "1574390633",
+		"used_cpu": "9.91/10.21/10.09",
+		"used_mem_pss": "622383", 
+		"used_mem_kernel": "83344", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "46", 
+		"battery_temperature": "334",
+		"keyboard": "panda.keyboard.emoji.theme/com.android.inputmethod.latin.LatinIME", 
+		"battery_voltage": "3806"
+
+	}
