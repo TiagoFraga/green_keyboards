@@ -38,6 +38,55 @@ edit_text = "blackcarbon.wordpad:id/et_document"
 ## OS Auxiliar Functions 
 ########################
 
+
+
+
+def assureTestExecutionConditions(adbcl):
+    expected_wifi_state = 0
+    expected_screen_awake = "Awake" #unlocked
+    #expected_mobile_data_state = 0
+    #expected_flashlight_state = 0
+    expected_bluetooth_state = 0
+    #expected_hotspot_state = 0
+    expected_sound_state = 0
+    expected_gps_state = 0
+    
+    # check if wifi is off
+    current_wifi_state = int(adbcl.shell("settings get global wifi_on ").strip())
+    if not current_wifi_state == expected_wifi_state :
+         print(colored("[Device Status Check] Please turn off wifi interface before executing the test","red"))
+         exit()
+
+    # check if the screen is ON and unlocked !!! 
+    current_screen_state = adbcl.shell("dumpsys power | grep \"mWakefulness=\" | cut -f2 -d=").strip()
+    is_current_screen_lock = len(adbcl.shell("dumpsys window | grep \"mShowingLockscreen=true\" "))>0
+    is_current_screen_lock2 =len(adbcl.shell("dumpsys window | grep \"mDreamingLockscreen=true\" "))>0
+    #print("-%s-%s-%s-" % (current_screen_state , is_current_screen_lock , is_current_screen_lock2) )
+    if not current_screen_state == expected_screen_awake or  is_current_screen_lock or is_current_screen_lock2 :
+        print(colored("[Device Status Check] Please unlock screen before executing the test","red"))
+        exit()
+    
+    current_bluetooth_state = int(adbcl.shell("settings get global bluetooth_on").strip())
+    if not current_bluetooth_state == expected_bluetooth_state :
+         print(colored("[Device Status Check] Please turn off bluetooth  before executing the test","red"))
+         exit()
+
+    is_hotspot_on = len(adbcl.shell("dumpsys wifi | grep \"curState=TetheredState\"")+ adbcl.shell(" dumpsys wifi | grep \"curState=ApEnabledState\"") ) >0
+    if is_hotspot_on:
+         print(colored("[Device Status Check] Please turn off Wi-fi Tethering  before executing the test","red"))
+         exit()
+
+    is_speaker_on = len( adbcl.shell("dumpsys audio | grep \"STREAM_SYSTEM:\" -A 1 | grep \"false\""))>0
+    if is_speaker_on:
+         print(colored("[Device Status Check] Please turn off Audio Speakers before executing the test","red"))
+         exit()
+
+    is_gps_on = len (adbcl.shell( "settings get secure location_providers_allowed | grep \"gps\"" )) >0
+    if is_gps_on:
+         print(colored("[Device Status Check] Please turn off GPS before executing the test","red"))
+         exit()
+
+
 def getOS():
     global SED_COMMAND
     global MKDIR_COMMAND
@@ -104,7 +153,7 @@ def initLocalResultsDir(keyboard_name, android_version):
 def alert():
     timex = 30
     while(timex > 0):
-        os.system("say -v diego ' muda o teclado!!!!!' ")
+        os.system("say -v diego 'se nao mudares o teclado, o benfica vai ser campeao!!!' ")
         timex = timex -1
         time.sleep(10)
 
@@ -124,6 +173,9 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     print("input text -> " + input_text)
     print("keyboard name-> " + keyboard_name)
     print("test index" + str(test_index))
+    
+    time.sleep(2)
+   
     vc = ViewClient(*ViewClient.connectToDeviceOrExit())
     print(colored("[Testing: "+ str(script_index) + "] " + str(datetime.datetime.now()),"yellow"))
     keyboard.cleaningAppCache(adbcl,package) 
@@ -152,7 +204,6 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     begin_time =  datetime.datetime.now().strftime(fmt)
     begin_state = local_results_dir + "/begin_state" + str(script_index) + ".json"
     keyboard.getDeviceResourcesState(begin_state)
-    
     profiler.startProfiler(adbcl)    #keyboard.writeLines(box_to_insert,lines_to_insert)
     keyboard.writeWords(box_to_insert,words_to_insert)
     profiler.stopProfiler(adbcl)
@@ -161,9 +212,8 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     keyboard.getDeviceResourcesState(end_state)
     
     keyboard.closeApp(adbcl,package)
-
-    profiler.exportResults(local_results_dir,script_index,SED_COMMAND,MV_COMMAND)
-    time.sleep(2* calculateExtraSleep(begin_time, end_time, fmt))
+    #time.sleep(2* calculateExtraSleep(begin_time, end_time, fmt))
+    profiler.exportResults(local_results_dir,script_index,SED_COMMAND,MV_COMMAND,assure=True)
     profiler.shutdownProfiler(adbcl)
 
 if __name__== "__main__":
@@ -177,6 +227,7 @@ if __name__== "__main__":
         sys.argv.pop(1)
         adbcl = adbclient.AdbClient('.*', settransport=True)
         android_version = change.detect_android_version()
+        assureTestExecutionConditions(adbcl)
         print(colored("***** [KEYBOARD TEST] *****","blue"))
         current_keyboard = change.get_current_keyboard()
         local_results_dir = initLocalResultsDir(current_keyboard,android_version)

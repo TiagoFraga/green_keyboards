@@ -37,7 +37,7 @@ class Profiler(object):
     def stopProfiling(self,adbcl):
         pass
 
-    def exportResults(self,adbcl):
+    def exportResults(self,adbcl,assure=False):
         pass
 
 
@@ -83,14 +83,25 @@ class TrepnProfiler(Profiler):
         adbcl.shell ("am broadcast -a  com.quicinc.trepn.export_to_csv -e com.quicinc.trepn.export_db_input_file 'myfile' -e com.quicinc.trepn.export_csv_output_file 'GreendroidResultTrace0'")
         time.sleep(1)
 
-    def exportResults(self,localDir,script_index,SED_COMMAND,MV_COMMAND):
+    def exportResults(self,localDir,script_index,SED_COMMAND,MV_COMMAND,assure=False):
         print(colored("collecting data ...","yellow"))
-        time.sleep(10)
+        time.sleep(3)
         os.system("adb shell ls " + self.deviceDir + "/ | " + SED_COMMAND + " -r 's/[\r]+//g' | egrep -Eio '.*.csv' |  xargs -I{} adb pull "+ self.deviceDir + "/{} " + localDir)
         #os.system("adb shell ls " + deviceDir + "/TracedMethods.txt | tr '\r' ' ' | xargs -n1 adb pull")
         os.system("adb shell ls " + self.deviceDir + " | " + SED_COMMAND + " -r 's/[\r]+//g' | egrep -Eio TracedMethods.txt | xargs -I{} adb pull " + self.deviceDir + "/{} " + localDir)
         os.system(MV_COMMAND + " " + localDir + "/TracedMethods.txt " + localDir + "/TracedMethods" + str(script_index) + ".txt")
         os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + localDir + "/GreendroidResultTrace" + str(script_index) +".csv")
+        pulled_file_path = localDir + "/GreendroidResultTrace" + str(script_index) +".csv"
+        was_file_pulled= os.path.exists( pulled_file_path )
+        while not was_file_pulled and assure==True:
+            print("results file not exported. waiting for trepn to export results file")
+            time.sleep(3)
+            os.system("adb shell ls " + self.deviceDir + "/ | " + SED_COMMAND + " -r 's/[\r]+//g' | egrep -Eio '.*.csv' |  xargs -I{} adb pull "+ self.deviceDir + "/{} " + localDir)
+            os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + pulled_file_path)
+            was_file_pulled= os.path.exists( pulled_file_path )
+
+
+
 
     def activateFlags(self,adbcl):
         adbcl.shell("echo 1 > "+self.deviceDir+"/GDflag")
