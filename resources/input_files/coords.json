@@ -3,13 +3,13 @@
         "first":[180,1100],
         "middle":[480,1100],
         "last":[780,1100],
-        "reco":"middle"
+        "reco":"last"
     },
-    "gboard":{
+    "google":{
         "first":[280,1240],
         "middle":[580,1240],
         "last":[880,1240],
-        "reco":"middle"
+        "reco":"first"
     },
     "swift":{
         "first":[220,1200],

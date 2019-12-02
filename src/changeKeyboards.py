@@ -93,7 +93,7 @@ def uninstallSingleKeyboard(keyboard_name,keyboard_dict):
             uninstallKeyboard(val['package'])
 
 def loadkeyboardInfo():
-    with open(os.getcwd()+'/resources/keyboards2.json') as json_file:
+    with open(os.getcwd()+'/resources/keyboards.json') as json_file:
         data = json.load(json_file)
         return data
 
