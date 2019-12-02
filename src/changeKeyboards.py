@@ -181,8 +181,9 @@ def option5():
     subOp = int(input())
     if subOp>0 and subOp < len(installed_keyboards)+1:
         uninstallSingleKeyboard(assoc_keyboard[subOp-1],keyboard_dict)
-    elif int(subOp) == len(installed_keyboard_names):
+    elif int(subOp) == len(installed_keyboard_names)+1:
         uninstallAllKeyboards(installed_keyboards)
+
 
 
 def loadInfo():
