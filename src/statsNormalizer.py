@@ -5,19 +5,35 @@ import sys
 import os
 import io
 import json
+from termcolor import colored
 
-#folder = './../outputs/'
-folder = '/Users/tiagofraga/Desktop/HASLAB/Keyboard/Local/green_keyboards/outputs/6/Nexus5/google/'
+output_folder = './outputs/'
 list_of_fildes = ['gpuload','cpuloadnormalized','memoryusage','energyconsumed','elapsedtime']
-import json
 
-def data_to_csv(data):
-    f = open(folder + "all_data.csv", "w")
-    f.write("test_id, energy cons (J), time elapsed (ms), cpuloadnormalized (%), memoryusage (KB), gpuload (%)")
+def data_to_csv(data,string_folder):
+    total_gpuload = 0
+    total_cpuloadnormalized = 0
+    total_memoryusage = 0
+    total_enegyconsumed = 0
+    total_elapsedtime = 0
+    f = open(string_folder + "all_data.csv", "w")
+    f.write("test_id; energy cons (J); time elapsed (ms); cpuloadnormalized (%); memoryusage (KB); gpuload (%)")
     f.write('\n')
     for line in data:
-        f.write(str(line['test_id']) + ',' + str(line['energyconsumed'])+ ',' + str(line['elapsedtime']) + ',' + str(line['cpuloadnormalized']) + ',' + str(line['memoryusage']) + ',' + str(line['gpuload']))
+        total_gpuload = total_gpuload + float(line['gpuload'])
+        total_cpuloadnormalized = total_cpuloadnormalized + float(line['cpuloadnormalized'])
+        total_memoryusage = total_memoryusage + float(line['memoryusage'])
+        total_enegyconsumed = total_enegyconsumed + float(line['energyconsumed'])
+        total_elapsedtime = total_elapsedtime + float(line['elapsedtime'])
+        f.write(str(line['test_id']) + ';' + str(line['energyconsumed'])+ ';' + str(line['elapsedtime']) + ';' + str(line['cpuloadnormalized']) + ';' + str(line['memoryusage']) + ';' + str(line['gpuload']))
         f.write('\n')
+    average_gpuload = total_gpuload / len(data)
+    average_cpuloadnormalized = total_cpuloadnormalized / len(data)
+    average_memoryusage = total_memoryusage / len(data)
+    average_enegyconsumed = total_enegyconsumed / len(data)
+    average_elapsedtime = total_elapsedtime / len(data)
+    f.write('average' + ';' + str(average_enegyconsumed)+ ';' + str(average_elapsedtime) + ';' + str(average_cpuloadnormalized) + ';' + str(average_memoryusage) + ';' + str(average_gpuload))
+    f.write('\n')
     f.close()
 
 def sort_data(data):
@@ -39,21 +55,44 @@ def sort_data(data):
     return new
 
 
-#def getStats(android_version,keyboard_name):
-def getStats():
-    stats = []
-    #folder_to_search = folder + android_version + "/" + keyboard_name
-    folder_to_search = folder
-    for filename in os.listdir(folder_to_search):
-        if filename.endswith(".json") and filename.startswith('t'):
-            with open(folder + filename) as json_file:
-                new = []
-                data = json.load(json_file)
-                data_sorted = sort_data(data)
-                stats.append(data_sorted)
-    data_to_csv(stats)
+def getStats(all_folders):
+    for folder in all_folders:
+        stats = []
+        string_folder = folder + "/"
+        for filename in os.listdir(folder):
+            if filename.endswith(".json") and filename.startswith('t'):
+                with open(string_folder + filename) as json_file:
+                    new = []
+                    data = json.load(json_file)
+                    data_sorted = sort_data(data)
+                    stats.append(data_sorted)
+        data_to_csv(stats,string_folder)
 
-getStats()
+def getFolders():
+    all_folders = []
+    keyboard_folders = []
+    for (dirpath, dirnames, filenames) in os.walk(output_folder):
+        folders = dirpath.split('/')
+        if len(folders) == 6:
+            all_folders.append(dirpath)
+        if len(folders) == 5:
+            keyboard_folders.append(dirpath)
+    return all_folders,keyboard_folders
+
+def cleanFolders(keyboard_folders):
+    for folder in keyboard_folders:
+        for filename in os.listdir(folder):
+            str_filename = folder + '/' + filename
+            if os.path.isfile(str_filename):
+                os.remove(str_filename)
+
+
+if __name__== "__main__":
+    all_folders,keyboard_folders = getFolders()
+    cleanFolders(keyboard_folders)
+    getStats(all_folders)
+    print(colored("[Success] Created " + str(len(all_folders)) + " resume files!","green"))
+    
             
                         
         
