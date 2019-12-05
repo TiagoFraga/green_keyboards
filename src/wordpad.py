@@ -105,9 +105,10 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     time.sleep(2* analyzer.calculateExtraSleep(begin_time, end_time, fmt))
     
     print(colored("[Profiler] Export results","yellow")) 
+    profiler.shutdownProfiler(adbcl)
     profiler.exportResults(local_results_dir,script_index,SED_COMMAND,MV_COMMAND,assure=True)
     print(colored("[Profiler] Close profiler","green"))
-    profiler.shutdownProfiler(adbcl)
+   
 
 
 
