@@ -60,20 +60,21 @@ class TrepnProfiler(Profiler):
         adbcl.shell("am broadcast -a com.quicinc.trepn.load_preferences -e com.quicinc.trepn.load_preferences_file"  + self.deviceDir + "/saved_preferences/" + preferences_file_path)
 
     def startProfiler(self,adbcl):
-        adbcl.shell("am broadcast -a com.quicinc.trepn.start_profiling -e com.quicinc.trepn.database_file 'myfile' ")
+        adbcl.shell("am broadcast -a com.quicinc.trepn.start_profiling -e com.quicinc.trepn.database_file \"myfile\" ")
         time.sleep(3)
-        adbcl.shell("am broadcast -a com.quicinc.Trepn.UpdateAppState -e com.quicinc.Trepn.UpdateAppState.Value '1' -e com.quicinc.Trepn.UpdateAppState.Value.Desc 'started' ")
+        adbcl.shell("am broadcast -a com.quicinc.Trepn.UpdateAppState -e com.quicinc.Trepn.UpdateAppState.Value 1 -e com.quicinc.Trepn.UpdateAppState.Value.Desc \"started\" ")
 
 
     def stopProfiler(self,adbcl):
-        adbcl.shell("am broadcast -a com.quicinc.Trepn.UpdateAppState -e com.quicinc.Trepn.UpdateAppState.Value '0' -e com.quicinc.Trepn.UpdateAppState.Value.Desc 'stopped' ")
+        adbcl.shell("am broadcast -a com.quicinc.Trepn.UpdateAppState -e com.quicinc.Trepn.UpdateAppState.Value 0 -e com.quicinc.Trepn.UpdateAppState.Value.Desc \"stopped\" ")
 
 
     def shutdownProfiler(self,adbcl):
         time.sleep(1)
         adbcl.shell("am broadcast -a com.quicinc.trepn.stop_profiling")
         time.sleep(6)
-        adbcl.shell ("am broadcast -a  com.quicinc.trepn.export_to_csv -e com.quicinc.trepn.export_db_input_file 'myfile' -e com.quicinc.trepn.export_csv_output_file 'GreendroidResultTrace0'")
+        print("amandei")
+        adbcl.shell ("am broadcast -a  com.quicinc.trepn.export_to_csv -e com.quicinc.trepn.export_db_input_file \"myfile\" -e com.quicinc.trepn.export_csv_output_file \"GreendroidResultTrace0\"")
         time.sleep(1)
 
     def exportResults(self,localDir,script_index,SED_COMMAND,MV_COMMAND,assure=False):
@@ -83,13 +84,18 @@ class TrepnProfiler(Profiler):
         os.system(MV_COMMAND + " " + localDir + "/TracedMethods.txt " + localDir + "/TracedMethods" + str(script_index) + ".txt")
         os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + localDir + "/GreendroidResultTrace" + str(script_index) +".csv")
         pulled_file_path = localDir + "/GreendroidResultTrace" + str(script_index) +".csv"
-        was_file_pulled= os.path.exists( pulled_file_path )
-        while not was_file_pulled and assure==True:
-            print(colored("[Profiler] Results file not exported. Waiting for trepn to export results file","red"))
+        has_stopped_tag = os.system( " grep \"stopped\" " + pulled_file_path + " > /dev/null" )
+        was_file_pulled_and_contains_stopped = os.path.exists( pulled_file_path ) and str(has_stopped_tag) == "0"
+        while not was_file_pulled_and_contains_stopped and assure==True:
+            print(colored("[Profiler] Results file is empty or wasn't exported. Waiting for trepn to export results file","red"))
             time.sleep(5)
             os.system("adb shell ls " + self.deviceDir + "/ | " + SED_COMMAND + " -r 's/[\r]+//g' | egrep -Eio '.*.csv' |  xargs -I{} adb pull "+ self.deviceDir + "/{} " + localDir)
-            os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + pulled_file_path)
-            was_file_pulled= os.path.exists( pulled_file_path )
+            os.system(MV_COMMAND + " " + localDir + "/GreendroidResultTrace0.csv " + localDir + "/GreendroidResultTrace" + str(script_index) +".csv")
+            pulled_file_path = localDir + "/GreendroidResultTrace" + str(script_index) +".csv"
+            has_stopped_tag = os.system( " grep \"stopped\" " + pulled_file_path + " > /dev/null" )
+            was_file_pulled_and_contains_stopped = os.path.exists( pulled_file_path ) and str(has_stopped_tag) == "0"
+        
+        
     
     def activateFlags(self,adbcl):
         adbcl.shell("echo 1 > "+self.deviceDir+"/GDflag")
