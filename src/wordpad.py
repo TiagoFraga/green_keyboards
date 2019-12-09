@@ -25,7 +25,7 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 2
+nr_tests = 3
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
@@ -126,7 +126,7 @@ def initTestInfo(adbcl):
     current_keyboard = change.get_current_keyboard()
     local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir, adbcl.serialno)
     deviceState.assureTestExecutionConditions(adbcl)
-    #deviceState.setBrightness(adbcl,0)
+    deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
 
 
