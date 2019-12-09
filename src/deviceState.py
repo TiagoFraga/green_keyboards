@@ -5,17 +5,17 @@ import os
 import time
 from termcolor import colored
 
-def getDeviceState(arg):
-    os.system("./src/getDeviceState.sh " + arg)
+def getDeviceState(serialno,arg):
+    os.system("./src/getDeviceState.sh %s %s" %(arg,serialno) )
     time.sleep(1)
 
-def getDeviceSpecs(arg):
-    os.system("./src/getDeviceSpecs.sh " + arg)
+def getDeviceSpecs(serialno,arg):
+    os.system("./src/getDeviceSpecs.sh  %s %s" %(arg,serialno) )
     time.sleep(1)
 
 
-def getDeviceResourcesState(arg):
-    os.system("./src/getDeviceResourcesState.sh " + arg)
+def getDeviceResourcesState(serialno,arg):
+    os.system("./src/getDeviceResourcesState.sh %s %s" %(arg,serialno) )
     time.sleep(1)
 
 def setBrightness(adbcl,level):

@@ -1,4 +1,5 @@
 devJson=$1
+device_serial_nr=$2
 DEVICE=$(adb devices -l  2>&1 | tail -2)
 has_devices_conected=$(adb shell echo "" 2>&1 | grep "devices/emulators found")
 if [[ -n "$has_devices_conected" ]]; then
@@ -6,12 +7,12 @@ if [[ -n "$has_devices_conected" ]]; then
 	#exit -1
 fi
 # device_model=$(   echo  $DEVICE  | grep -o "model.*" | cut -f2 -d: | cut -f1 -d\ )
- device_model=$(adb shell getprop ro.product.model)
+ device_model=$(adb -s $device_serial_nr shell getprop ro.product.model)
  device_serial=$(   echo  $DEVICE | tail -n 2 | grep "model" | cut -f1 -d\ )
- device_ram=$(adb shell cat /proc/meminfo | grep "MemTotal"| cut -f2 -d: | sed 's/ //g')
- device_cores=$( adb shell cat /proc/cpuinfo | grep processor| wc -l | sed 's/ //g')
- device_max_cpu_freq=$(adb shell cat /proc/cpumaxfreq )
- device_brand=$(adb shell getprop ro.product.brand)
+ device_ram=$(adb  -s $device_serial_nr shell cat /proc/meminfo | grep "MemTotal"| cut -f2 -d: | sed 's/ //g')
+ device_cores=$( adb  -s $device_serial_nr shell cat /proc/cpuinfo | grep processor| wc -l | sed 's/ //g')
+ device_max_cpu_freq=$(adb  -s $device_serial_nr shell cat /proc/cpumaxfreq )
+ device_brand=$(adb  -s $device_serial_nr shell getprop ro.product.brand)
 # device_brand=$(  echo  $DEVICE | grep -o "device:.*" | cut -f2 -d: )
 echo "
 {
