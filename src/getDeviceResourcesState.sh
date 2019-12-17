@@ -22,8 +22,8 @@ battery_temperature=$(echo "$battery" | grep "temperature:" | cut -f2 -d\: | sed
 battery_voltage=$(echo "$battery" | grep "voltage:" | tail -1 | cut -f2 -d\: | sed "s/ //g")
 wifi_on=$(adb  -s $device_serial_nr shell settings get global wifi_on)
 mobile_data_on=$(adb  -s $device_serial_nr shell settings get global mobile_data0)
-
-
+adb -s $device_serial_nr shell dumpsys  input_method | grep "mCurMethodId" | cut -f2 -d= | cut -f1 -d/ | xargs -I{} adb -s $device_serial_nr shell 'su -c find /data/data/{}' > "$resState.keyboard_files"
+nr_files_keyboard_folder=$(adb -s $device_serial_nr shell dumpsys  input_method | grep "mCurMethodId" | cut -f2 -d= | cut -f1 -d/ | xargs -I{} adb -s $device_serial_nr shell 'su -c find /data/data/{} | wc -l')
 timestamp=$(date +%s)
 echo "
     {	\"timestamp\": \"$timestamp\",
@@ -36,5 +36,6 @@ echo "
 		\"battery_temperature\": \"$battery_temperature\",
 		\"keyboard\": \"$keyboard\", 
 		\"battery_voltage\": \"$battery_voltage\"
+		\"nr_files_keyboard_folder\": \"$nr_files_keyboard_folder\"
 
 	}" > "$resState"

@@ -74,7 +74,6 @@ class TrepnProfiler(Profiler):
         time.sleep(1)
         self.adbcl.shell("am broadcast -a com.quicinc.trepn.stop_profiling")
         time.sleep(6)
-        print("amandei")
         self.adbcl.shell ("am broadcast -a  com.quicinc.trepn.export_to_csv -e com.quicinc.trepn.export_db_input_file \"myfile\" -e com.quicinc.trepn.export_csv_output_file \"GreendroidResultTrace0\"")
         time.sleep(1)
 

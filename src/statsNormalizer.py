@@ -8,7 +8,7 @@ import json
 from termcolor import colored
 
 output_folder = './outputs/'
-list_of_fildes = ['gpuload','cpuloadnormalized','memoryusage','energyconsumed','elapsedtime']
+list_of_fildes = ['cpuloadnormalized','memoryusage','energyconsumed','elapsedtime']
 
 def data_to_csv(data,string_folder):
     total_gpuload = 0
@@ -20,14 +20,14 @@ def data_to_csv(data,string_folder):
     f.write("test_id; energy cons (J); time elapsed (ms); cpuloadnormalized (%); memoryusage (KB); gpuload (%)")
     f.write('\n')
     for line in data:
-        total_gpuload = total_gpuload + float(line['gpuload'])
+        #total_gpuload = total_gpuload + float(line['gpuload'])
         total_cpuloadnormalized = total_cpuloadnormalized + float(line['cpuloadnormalized'])
         total_memoryusage = total_memoryusage + float(line['memoryusage'])
         total_enegyconsumed = total_enegyconsumed + float(line['energyconsumed'])
         total_elapsedtime = total_elapsedtime + float(line['elapsedtime'])
         f.write(str(line['test_id']) + ';' + str(line['energyconsumed'])+ ';' + str(line['elapsedtime']) + ';' + str(line['cpuloadnormalized']) + ';' + str(line['memoryusage']) + ';' + str(line['gpuload']))
         f.write('\n')
-    average_gpuload = total_gpuload / len(data)
+    average_gpuload =  0#total_gpuload / len(data)
     average_cpuloadnormalized = total_cpuloadnormalized / len(data)
     average_memoryusage = total_memoryusage / len(data)
     average_enegyconsumed = total_enegyconsumed / len(data)
@@ -73,9 +73,9 @@ def getFolders():
     keyboard_folders = []
     for (dirpath, dirnames, filenames) in os.walk(output_folder):
         folders = dirpath.split('/')
-        if len(folders) == 6:
+        if len(folders) == 7:
             all_folders.append(dirpath)
-        if len(folders) == 5:
+        if len(folders) == 6:
             keyboard_folders.append(dirpath)
     return all_folders,keyboard_folders
 

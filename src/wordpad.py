@@ -25,13 +25,13 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
-nr_tests = 3
+nr_tests = 25
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
 edit_text = "blackcarbon.wordpad:id/et_document"
-
-
+keyboard_mode = "minimal"
+wordpad_cache_folder = ""
 ########################
 ## OS Auxiliar Functions 
 ########################
@@ -112,19 +112,21 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     profiler.shutdownProfiler()
     profiler.exportResults(local_results_dir,test_index,SED_COMMAND,MV_COMMAND,assure=True)
     print(colored("[Profiler] Close profiler","green"))
+    print(colored("[Profiler] wiping wordpad private folder","green"))
+    wipe_wordpad_private_folder(adbcl)
    
 
 
 
 def initTestInfo(adbcl):
     getOS()
-    android_version = change.detect_android_version()
+    android_version = change.detect_android_version(adbcl)
     keyboard_dict = change.loadkeyboardInfo()
-    installed_keyboards = change.get_installed_keyboards(keyboard_dict.values())    
+    installed_keyboards = change.get_installed_keyboards(adbcl,keyboard_dict.values())    
     installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
     all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
-    current_keyboard = change.get_current_keyboard()
-    local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir, adbcl.serialno)
+    current_keyboard = change.get_current_keyboard(adbcl)
+    local_results_dir = analyzer.initLocalResultsDir(adbcl,current_keyboard,android_version,output_dir, adbcl.serialno)
     deviceState.assureTestExecutionConditions(adbcl)
     deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
@@ -137,10 +139,17 @@ def each_thread(adbcl,local_results_dir,current_keyboard):
     while script_index < nr_tests:
         script_index+=1
         keyboard_test(adbcl, input_text , current_keyboard ,script_index,local_results_dir)   
+        analyzer.wipe_and_copy_to_tmp_dir(local_results_dir,script_index)
+        analyzer.analyze_temp_dir(local_results_dir)
+
     analyzer.analyzeResults(local_results_dir)
     print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
 
 
+
+def wipe_wordpad_private_folder(adbcl):
+    print("wiping")
+    adbcl.shell( 'su -c " find  /data/data/blackcarbon.wordpad/  -type f | xargs rm   "')
 
 if __name__== "__main__":
     if len(sys.argv) > 1:

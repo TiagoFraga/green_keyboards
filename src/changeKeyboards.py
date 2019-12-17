@@ -13,13 +13,13 @@ from os import sys
 from termcolor import colored
 import time
 
-adbcl = adbclient.AdbClient('.*', settransport=True)
+#
 
 
-def get_all_keyboards():
+def get_all_keyboards(adbcl):
     return (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n"))
 
-def get_installed_keyboards(keyboard_package_list):
+def get_installed_keyboards(adbcl,keyboard_package_list):
     keyboards_packages= list( map(lambda it: it['package'] , keyboard_package_list ))
     l=[]
     for keyboard in (adbcl.shell("dumpsys  input_method | grep 'mId' | cut -f2 -d= | cut -f1 -d/").split("\n")):
@@ -27,7 +27,7 @@ def get_installed_keyboards(keyboard_package_list):
             l.append(str(keyboard).strip())
     return l
 
-def show_current_keyboard(keyboard_dict):
+def show_current_keyboard(adbcl,keyboard_dict):
     current = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
     for key,val in keyboard_dict.items():
         ime = str(val['ime'])
@@ -35,19 +35,19 @@ def show_current_keyboard(keyboard_dict):
         if ime == current_str:
             print(colored(val['name'],"green"))
 
-def set_keyboard(keyboards_full_definition):
+def set_keyboard(adbcl,keyboards_full_definition):
     adbcl.shell("ime set " + keyboards_full_definition)
 
-def get_current_keyboard():
+def get_current_keyboard(adbcl):
     keyboard_dict = loadkeyboardInfo()
     current_keyboard = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
     return list( map( lambda x : str(x['name']) ,  filter(lambda it : str(it['ime']) == str(current_keyboard).strip() , keyboard_dict.values())))[0]
 
-def detect_device_model():
+def detect_device_model(adbcl):
     x = adbcl.getProperty("ro.product.model")
     return (str(x).replace(" ",""))
 
-def detect_android_version():
+def detect_android_version(adbcl):
     x = adbcl.getProperty("ro.build.version.release")
     return (str(x).replace("Android","").split(".")[0])
 
@@ -74,14 +74,14 @@ def installAPK(apks_folder):
         else:
             print (colored("[Error] Error installing apk(s)","red"))
 
-def uninstallAllKeyboards(all_apks):
+def uninstallAllKeyboards(adbcl,all_apks):
     pattern = re.compile("com.google.android")
     for x in all_apks:
         if not pattern.match(x):
             print(colored("[Uninstalling] " + x,"yellow"))
-            uninstallKeyboard(x)
+            uninstallKeyboard(adbcl,x)
 
-def uninstallKeyboard(keyboard_package):
+def uninstallKeyboard(adbcl,keyboard_package):
     adbcl.shell("pm uninstall " + keyboard_package)
 
 def uninstallSingleKeyboard(keyboard_name,keyboard_dict):
@@ -90,18 +90,18 @@ def uninstallSingleKeyboard(keyboard_name,keyboard_dict):
         current = str(keyboard_name).strip()
         if name == current:
             print(colored("[Uninstalling] " + name,"yellow"))
-            uninstallKeyboard(val['package'])
+            uninstallKeyboard(adbcl,val['package'])
 
 def loadkeyboardInfo():
     with open(os.getcwd()+'/resources/keyboards.json') as json_file:
         data = json.load(json_file)
         return data
 
-def installKeyboard(android_version, keyboard_name):
+def installKeyboard(adbcl,android_version, keyboard_name):
     dir_path = os.getcwd() + "/resources/apks/keyboard_apks/Android_" + android_version+"/" + keyboard_name
     if os.path.isdir(dir_path) :
         #print ("installing apk(s) suited for version %s" % android_version)
-        installAPK(dir_path)
+        installAPK(adbcl,dir_path)
 
 
 
@@ -118,13 +118,13 @@ def show_option_menu():
 
 
 def option1():
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo()
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl)
     print(colored("[Installed Keyboards]","green")) 
     for f in installed_keyboard_names:
         print(colored(f,"green"))
 
 def option2():
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo()
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl)
     print(colored("[Current Keyboard]","green"))
     current = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
     for key,val in keyboard_dict.items():
@@ -135,7 +135,7 @@ def option2():
             
 
 def option3():
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo() 
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl) 
     print(colored("[Set Keyboard]","green"))
     for x in xrange(0, len(installed_keyboard_names)):
         print(colored("%s -> %s" %(x, installed_keyboard_names[x]),"green"))
@@ -151,7 +151,7 @@ def option3():
 
 
 def option4():
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo() 
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl) 
     print(colored("[Install Keyboard]","green"))
     for x in xrange(0, len(all_considered_keyboards)):
         print(colored("%d -> %s" %(x+1, all_considered_keyboards[x]),"green"))
@@ -163,7 +163,7 @@ def option4():
         if os.path.isdir(dir_path) :
             print(colored("Installing apk(s) suited for version %s" % android_version,"yellow"))
             installAPK(dir_path)
-            installed_keyboards = get_installed_keyboards(keyboard_dict.values())
+            installed_keyboards = get_installed_keyboards(adbcl,keyboard_dict.values())
             installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
         else:
             print(colored("[Error] No APKs available for version " + android_version + " folder /resources/apks/keyboard_apks/Android_" + android_version + " not found","red"))
@@ -186,18 +186,19 @@ def option5():
 
 
 
-def loadInfo():
-    android_version = detect_android_version()
+def loadInfo(adbcl):
+    android_version = detect_android_version(adbcl)
     keyboard_dict = loadkeyboardInfo()    
-    installed_keyboards = get_installed_keyboards(keyboard_dict.values())    
+    installed_keyboards = get_installed_keyboards(adbcl,keyboard_dict.values())    
     installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
     all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
     return android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards
 
 
 if __name__== "__main__":
+    adbcl = adbclient.AdbClient('.*', settransport=True)
     print(colored("***** [CHANGE KEYBOARD] *****","blue"))
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo() 
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl) 
     print(colored("[Device] Connected device has version %s of Android." % android_version,"green"))
     bol = False
     while bol == False:
