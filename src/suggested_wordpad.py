@@ -25,6 +25,7 @@ MV_COMMAND = ''
 
 
 nr_tests = 1
+test_type = "suggested"
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
@@ -117,7 +118,7 @@ def initTestInfo(adbcl):
     installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
     all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
     current_keyboard = change.get_current_keyboard()
-    local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir)
+    local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir,test_type)
     deviceState.assureTestExecutionConditions(adbcl)
     deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard

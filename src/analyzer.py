@@ -19,7 +19,8 @@ def analyzeResults(results_path):
                 shutil.copy(full_file_name, new_dir)
 
 
-def initLocalResultsDir(adbcl,keyboard_name, android_version,output_dir, device_serial_nr):
+
+def initLocalResultsDir(keyboard_name, android_version,output_dir, device_serial_nr, test_type):
     output_dir_1 =  os.getcwd() + output_dir +"/"
     if not os.path.exists( output_dir_1 ):
         os.mkdir(output_dir_1)
@@ -29,11 +30,12 @@ def initLocalResultsDir(adbcl,keyboard_name, android_version,output_dir, device_
     model_dir = output_dir_android + "/" + change.detect_device_model(adbcl)
     if not os.path.exists( model_dir ):
         os.mkdir(model_dir)
-
     serial_dir = model_dir + "/" + device_serial_nr
     if not os.path.exists( serial_dir ):
         os.mkdir(serial_dir)
-
+    type_dir = serial_dir  + '/' + test_type
+    if not os.path.exists( serial_dir ):
+        os.mkdir(serial_dir)
     target_dir = serial_dir + "/" + keyboard_name
     if not os.path.exists( target_dir ):
         os.mkdir(target_dir)

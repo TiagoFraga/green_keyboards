@@ -25,13 +25,16 @@ MKDIR_COMMAND = ''
 MV_COMMAND = ''
 
 
+
 nr_tests = 25
+test_type = "minimal" #minimal or default
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
 edit_text = "blackcarbon.wordpad:id/et_document"
-keyboard_mode = "minimal"
 wordpad_cache_folder = ""
+
+
 ########################
 ## OS Auxiliar Functions 
 ########################
@@ -125,8 +128,8 @@ def initTestInfo(adbcl):
     installed_keyboards = change.get_installed_keyboards(adbcl,keyboard_dict.values())    
     installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
     all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
-    current_keyboard = change.get_current_keyboard(adbcl)
-    local_results_dir = analyzer.initLocalResultsDir(adbcl,current_keyboard,android_version,output_dir, adbcl.serialno)
+    current_keyboard = change.get_current_keyboard()
+    local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir, adbcl.serialno, test_type)
     deviceState.assureTestExecutionConditions(adbcl)
     deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
