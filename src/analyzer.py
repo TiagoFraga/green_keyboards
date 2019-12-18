@@ -20,7 +20,7 @@ def analyzeResults(results_path):
 
 
 
-def initLocalResultsDir(keyboard_name, android_version,output_dir, device_serial_nr, test_type):
+def initLocalResultsDir(adbcl,keyboard_name, android_version,output_dir, device_serial_nr, test_type):
     output_dir_1 =  os.getcwd() + output_dir +"/"
     if not os.path.exists( output_dir_1 ):
         os.mkdir(output_dir_1)

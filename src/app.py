@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import data
 
 def openApp(adbcl,package):
     adbcl.shell("monkey -p " + package + " -c android.intent.category.LAUNCHER 1")
@@ -42,10 +43,10 @@ def writeWords(text,words_to_insert):
 
 def writeSuggestedWords(vc,text,words_to_insert,words_length,coords):
     for key,word in words_to_insert.items():
+        print ("key %s , word %s" % (key,word))
         word_str = word.encode('ascii','replace')
         chars = int(words_length.get(key))
         char_limit = 0
-        
         while(char_limit < chars):
             text.type_without_sleep(word_str[char_limit],alreadyTouched=True)
             char_limit = char_limit+1
@@ -56,7 +57,41 @@ def writeSuggestedWords(vc,text,words_to_insert,words_length,coords):
             vc.touch(int(option[0]),int(option[1]))
             char_limit = char_limit+1
         text.type_without_sleep(' ',alreadyTouched=True)
+      
+# input_text file is a text file splitted by spaces 
+def write_cutted_word_with_suggestion_touch(adbcl, box_text , input_text_file , coords):
+    text = data.split_lines( input_text_file)
+    suggestion_box = coords.get("reco") 
+    suggestion_box_coords = coords.get(suggestion_box)
+    for line in text:
+        l = line.split(" ")
+        word = l[0].encode('ascii','replace')
+        n_chars_to_write = l[1].replace("\n","")
+        trunc_word=word[:int(n_chars_to_write)]
         
+        if int(n_chars_to_write)==0:
+           # print("nada")  
+            #adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
+            #time.sleep(3)
+            #my_touch(adbcl, int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))
+            #my_touch(adbcl, 200, 1050)
+            my_touch(adbcl, 200, 1050)
+            #adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
+    
+            #adbcl.touchDip(200,1050)        
+            
+        else:
+            print("word to write ->%s" % trunc_word)
+            box_text.type_without_sleep(trunc_word,alreadyTouched=True)
+            print("coords: %s, %s" % (suggestion_box_coords[0],suggestion_box_coords[1]))
+            #time.sleep(5)
+            #adbcl.touchDip(200,1050)        
+            my_touch(adbcl, 200, 1050)
+           
+            #my_touch(adbcl, int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))
+            adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
+            
+
 
 def writeChars(text,words):
     for word in words:
@@ -76,7 +111,11 @@ def getText(vc,edit_text):
     text = box_to_insert.getText()
     time.sleep(2)
     return text
-                
+     
+def my_touch(adbcl,x,y):
+   # print ("touching")
+    adbcl.shell("input swipe %d %d %d %d 1" % (x,y,x,y))
+    #print("touched")       
 
 def prepareEmail(vc,adbcl,data_mail):
     vc.dump(window=-1)

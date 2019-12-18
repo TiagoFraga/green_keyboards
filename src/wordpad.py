@@ -109,7 +109,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
 
     print(colored("[WordPad] Close app","green"))
     app.closeApp(adbcl,package)
-    time.sleep(2* analyzer.calculateExtraSleep(begin_time, end_time, fmt))
+    #time.sleep(2* analyzer.calculateExtraSleep(begin_time, end_time, fmt))
     
     print(colored("[Profiler] Export results","yellow")) 
     profiler.shutdownProfiler()

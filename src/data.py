@@ -58,16 +58,9 @@ def getEmail(filename):
     return data_mail
 
 def getCoords(filename,keyboard_key):
-    name = ''
     with open(filename) as json_file:
         dic = json.load(json_file)
-    if keyboard_key == 1:
-        name = "swift"
-    elif keyboard_key == 2:
-        name = "gboard"
-    else:
-        name = "samsung"
-    coords = dic.get(name)
+        coords = dic.get(keyboard_key)
     return coords
 
 def text_to_lines(text):
