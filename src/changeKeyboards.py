@@ -117,13 +117,13 @@ def show_option_menu():
     print(colored("[Choose Option]","yellow"))
 
 
-def option1():
+def option1(adbcl):
     android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl)
     print(colored("[Installed Keyboards]","green")) 
     for f in installed_keyboard_names:
         print(colored(f,"green"))
 
-def option2():
+def option2(adbcl):
     android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl)
     print(colored("[Current Keyboard]","green"))
     current = adbcl.shell("dumpsys  input_method | grep 'mCurMethodId' | cut -f2 -d=")
@@ -134,7 +134,7 @@ def option2():
             print(colored(val['name'],"green"))
             
 
-def option3():
+def option3(adbcl):
     android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl) 
     print(colored("[Set Keyboard]","green"))
     for x in xrange(0, len(installed_keyboard_names)):
@@ -143,14 +143,14 @@ def option3():
     subOp = int(input())
     if subOp < len(installed_keyboards):
         keyboard_ime = list( map( lambda it : str(it['ime']),  filter(lambda it : str(it['name']) == installed_keyboard_names[subOp] , keyboard_dict.values() )))[0]
-        set_keyboard(keyboard_ime)
+        set_keyboard(adbcl,keyboard_ime)
         print(colored("[Current Keyboard]","yellow")) 
         show_current_keyboard(keyboard_dict)
     else:
         print(colored("[Wrong option] Please choose a valid one!","red"))
 
 
-def option4():
+def option4(adbcl):
     android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl) 
     print(colored("[Install Keyboard]","green"))
     for x in xrange(0, len(all_considered_keyboards)):
@@ -168,9 +168,9 @@ def option4():
         else:
             print(colored("[Error] No APKs available for version " + android_version + " folder /resources/apks/keyboard_apks/Android_" + android_version + " not found","red"))
 
-def option5():
+def option5(adbcl):
     assoc_keyboard = {}
-    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo()
+    android_version,keyboard_dict, installed_keyboards,installed_keyboard_names,all_considered_keyboards = loadInfo(adbcl)
     print(colored("[Uninstall Keyboard]","green"))
     for x in xrange(0, len(installed_keyboard_names)):
         print(colored("%d -> %s" %(x+1, installed_keyboard_names[x]),"green"))
@@ -182,7 +182,7 @@ def option5():
     if subOp>0 and subOp < len(installed_keyboards)+1:
         uninstallSingleKeyboard(assoc_keyboard[subOp-1],keyboard_dict)
     elif int(subOp) == len(installed_keyboard_names)+1:
-        uninstallAllKeyboards(installed_keyboards)
+        uninstallAllKeyboards(adbcl,installed_keyboards)
 
 
 
@@ -205,15 +205,15 @@ if __name__== "__main__":
         show_option_menu()
         op = int(input())
         if op == 1:
-            option1()
+            option1(adbcl)
         elif op == 2:
-            option2()
+            option2(adbcl)
         elif op == 3:
-            option3()
+            option3(adbcl)
         elif op == 4:
-            option4()
+            option4(adbcl)
         elif op == 5:
-            option5()
+            option5(adbcl)
         elif op == 0:
             bol = True
         else:
