@@ -27,11 +27,15 @@ def data_to_csv(data,string_folder):
         total_elapsedtime = total_elapsedtime + float(line['elapsedtime'])
         f.write(str(line['test_id']) + ';' + str(line['energyconsumed'])+ ';' + str(line['elapsedtime']) + ';' + str(line['cpuloadnormalized']) + ';' + str(line['memoryusage']) + ';' + str(line['gpuload']))
         f.write('\n')
-    average_gpuload =  0#total_gpuload / len(data)
-    average_cpuloadnormalized = total_cpuloadnormalized / len(data)
-    average_memoryusage = total_memoryusage / len(data)
-    average_enegyconsumed = total_enegyconsumed / len(data)
-    average_elapsedtime = total_elapsedtime / len(data)
+    if len(data)==0:
+        size = 1
+    else:
+        size = len(data)
+    average_gpuload =  total_gpuload / size
+    average_cpuloadnormalized = total_cpuloadnormalized / size
+    average_memoryusage = total_memoryusage / size
+    average_enegyconsumed = total_enegyconsumed / size
+    average_elapsedtime = total_elapsedtime / size
     f.write('average' + ';' + str(average_enegyconsumed)+ ';' + str(average_elapsedtime) + ';' + str(average_cpuloadnormalized) + ';' + str(average_memoryusage) + ';' + str(average_gpuload))
     f.write('\n')
     f.close()
@@ -73,9 +77,9 @@ def getFolders():
     keyboard_folders = []
     for (dirpath, dirnames, filenames) in os.walk(output_folder):
         folders = dirpath.split('/')
-        if len(folders) == 7:
+        if len(folders) == 8:
             all_folders.append(dirpath)
-        if len(folders) == 6:
+        if len(folders) == 7:
             keyboard_folders.append(dirpath)
     return all_folders,keyboard_folders
 

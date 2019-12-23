@@ -59,38 +59,31 @@ def writeSuggestedWords(vc,text,words_to_insert,words_length,coords):
         text.type_without_sleep(' ',alreadyTouched=True)
       
 # input_text file is a text file splitted by spaces 
-def write_cutted_word_with_suggestion_touch(adbcl, box_text , input_text_file , coords):
-    text = data.split_lines( input_text_file)
+def write_cutted_word_with_suggestion_touch(adbcl, box_text , triples , coords):
     suggestion_box = coords.get("reco") 
     suggestion_box_coords = coords.get(suggestion_box)
-    for line in text:
-        l = line.split(" ")
-        word = l[0].encode('ascii','replace')
-        n_chars_to_write = l[1].replace("\n","")
-        trunc_word=word[:int(n_chars_to_write)]
-        
-        if int(n_chars_to_write)==0:
-           # print("nada")  
-            #adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
-            #time.sleep(3)
-            #my_touch(adbcl, int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))
-            #my_touch(adbcl, 200, 1050)
-            my_touch(adbcl, 200, 1050)
-            #adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
-    
-            #adbcl.touchDip(200,1050)        
-            
+    sug_x = int(suggestion_box_coords[0])
+    sug_y = int(suggestion_box_coords[1])
+    for word, trunc_word, word_len in triples:       
+        if word_len==0:
+            my_touch(adbcl, sug_x, sug_y)  
         else:
-            print("word to write ->%s" % trunc_word)
             box_text.type_without_sleep(trunc_word,alreadyTouched=True)
-            print("coords: %s, %s" % (suggestion_box_coords[0],suggestion_box_coords[1]))
-            #time.sleep(5)
-            #adbcl.touchDip(200,1050)        
-            my_touch(adbcl, 200, 1050)
-           
-            #my_touch(adbcl, int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))
-            adbcl.touch(int(suggestion_box_coords[0]),int(suggestion_box_coords[1]))        
-            
+            my_touch(adbcl, sug_x, sug_y)  
+
+
+def write_cutted_word_charbychar_with_suggestion_touch(adbcl, box_text , triples , coords):
+    suggestion_box = coords.get("reco") 
+    suggestion_box_coords = coords.get(suggestion_box)
+    sug_x = int(suggestion_box_coords[0])
+    sug_y = int(suggestion_box_coords[1])
+    for word, trunc_word, word_len in triples:
+        char_limit = 0
+        while(char_limit < word_len):
+                box_text.type_without_sleep(word[char_limit],alreadyTouched=True)
+                #text.type_without_sleep(,alreadyTouched=True)
+                char_limit = char_limit+1
+        my_touch(adbcl, sug_x, sug_y)  
 
 
 def writeChars(text,words):
@@ -113,9 +106,8 @@ def getText(vc,edit_text):
     return text
      
 def my_touch(adbcl,x,y):
-   # print ("touching")
     adbcl.shell("input swipe %d %d %d %d 1" % (x,y,x,y))
-    #print("touched")       
+      
 
 def prepareEmail(vc,adbcl,data_mail):
     vc.dump(window=-1)

@@ -34,14 +34,12 @@ def initLocalResultsDir(adbcl,keyboard_name, android_version,output_dir, device_
     if not os.path.exists( serial_dir ):
         os.mkdir(serial_dir)
     type_dir = serial_dir  + '/' + test_type
-    if not os.path.exists( serial_dir ):
-        os.mkdir(serial_dir)
-    target_dir = serial_dir + "/" + keyboard_name
+    if not os.path.exists( type_dir ):
+        os.mkdir(type_dir)
+    target_dir = type_dir + "/" + keyboard_name
     if not os.path.exists( target_dir ):
         os.mkdir(target_dir)
     else: 
-        #if results folder already exists, wipe files of folder
-        #and leave the subfolders with old results
         for file in os.listdir(target_dir):
             full_file_name = os.path.join(target_dir, file)
             if os.path.isfile(full_file_name):

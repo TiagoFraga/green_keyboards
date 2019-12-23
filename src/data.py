@@ -114,3 +114,21 @@ def getSuggestions(filename):
            words_length[w] = info[1].split('\n')[0]
            w = w+1
    return words,words_length
+
+
+def get_triples_word_trunc_len(filename):
+    ret_list = []
+    text = split_lines( filename)
+    for line in text:
+        l = line.split(" ")
+        word = l[0].encode('ascii','replace')
+        n_chars_to_write = l[1].replace("\n","")
+        trunc_word=word[:int(n_chars_to_write)]      
+        ret_list.append((word,trunc_word,int(n_chars_to_write)))
+    return ret_list
+
+
+
+
+
+

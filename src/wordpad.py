@@ -27,12 +27,13 @@ MV_COMMAND = ''
 
 
 nr_tests = 25
-test_type = "minimal" #minimal or default
+test_type = "default" #minimal or default
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
 edit_text = "blackcarbon.wordpad:id/et_document"
 wordpad_cache_folder = ""
+type_mode="word"
 
 
 ########################
@@ -76,7 +77,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     deviceState.getDeviceState(adbcl.serialno,local_results_dir + "/deviceState.json")
     time.sleep(2)
 
-    print("ulha o index " + str(test_index))
+    
 
     print(colored("[Testing: "+ adbcl.serialno + " "+str(test_index) + "] " + str(datetime.datetime.now()),"green"))
     app.cleaningAppCache(adbcl,package) 
@@ -98,7 +99,12 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     
     print(colored("[Start Profiling Phase] " + str(datetime.datetime.now()) ,"yellow"))
     profiler.startProfiler()    
-    app.writeWords(box_to_insert,words_to_insert)
+    
+    if type_mode == "char":
+        app.writeChars(box_to_insert, chars_to_insert)
+    else:
+        app.writeWords(box_to_insert,words_to_insert)
+    
     profiler.stopProfiler()
     print(colored("[Stop Profiling Phase] " + str(datetime.datetime.now()),"green"))
 
@@ -128,8 +134,8 @@ def initTestInfo(adbcl):
     installed_keyboards = change.get_installed_keyboards(adbcl,keyboard_dict.values())    
     installed_keyboard_names = list(map( lambda it : str(it['name'])  ,filter(lambda it : str(it['package']) in installed_keyboards  , keyboard_dict.values() )))
     all_considered_keyboards = list(map(lambda it : str(it['name']), keyboard_dict.values()))
-    current_keyboard = change.get_current_keyboard()
-    local_results_dir = analyzer.initLocalResultsDir(current_keyboard,android_version,output_dir, adbcl.serialno, test_type)
+    current_keyboard = change.get_current_keyboard(adbcl)
+    local_results_dir = analyzer.initLocalResultsDir(adbcl,current_keyboard,android_version,output_dir, adbcl.serialno, test_type)
     deviceState.assureTestExecutionConditions(adbcl)
     deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
