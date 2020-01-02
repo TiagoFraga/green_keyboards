@@ -36,6 +36,7 @@ wordpad_cache_folder = ""
 coords_file = './resources/input_files/coords.json'
 type_mode = "char" # char or word s
 
+calibrations_folder="./resources/keyboard_calibration/"
 ########################
 ## OS Auxiliar Functions 
 ########################
@@ -71,6 +72,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     print(colored("[Text Files] Collecting data","yellow"))
     #text_to_insert, lines_to_insert, words_to_insert, chars_to_insert, words_sugge, words_sugge_length = data.getData(input_text)
     coords = data.getCoords(coords_file,keyboard_name)
+
     triples =  data.get_triples_word_trunc_len(input_text)
     deviceState.getDeviceSpecs(adbcl.serialno,local_results_dir + "/device.json")
     deviceState.getDeviceState(adbcl.serialno,local_results_dir + "/deviceState.json")
@@ -161,25 +163,27 @@ def wipe_wordpad_private_folder(adbcl):
     adbcl.shell( 'su -c " find  /data/data/blackcarbon.wordpad/  -type f | xargs rm   "')
 
 
+def get_matching_keyboard_calibration_file(adbcl):
+    keyboard = change.get_current_keyboard(adbcl)
+    str_file = "%s/%s.out" % ( calibrations_folder , keyboard )
+    return str_file
+
 
 
 if __name__== "__main__":
-    if len(sys.argv) > 1:
-        input_text = sys.argv[1]
-        sys.argv.pop(1)
-        devices_serial_list = os.popen('adb devices -l  | grep \"port\" | cut -f1 -d\ ').read()
-        threads = list()
-        for index in range(len(devices_serial_list.split("\n"))-1):
-            adbcl = adbclient.AdbClient( serialno=str(devices_serial_list.split("\n")[index])  , settransport=True)
-            local_results_dir, current_keyboard = initTestInfo(adbcl)
-            log_input_text(local_results_dir,input_text)
-            x = threading.Thread(target=each_thread, args=(adbcl,local_results_dir,current_keyboard,))
-            threads.append(x)
-            x.start()
-            time.sleep(10) # wait >10s between thread starts
-        for index, thread in enumerate(threads):
-            thread.join()
+    devices_serial_list = os.popen('adb devices -l  | grep \"product\" | cut -f1 -d\ ').read()
+    threads = list()
+    for index in range(len(devices_serial_list.split("\n"))-1):
+        adbcl = adbclient.AdbClient( serialno=str(devices_serial_list.split("\n")[index])  , settransport=True)
+        input_text = get_matching_keyboard_calibration_file(adbcl)
+        local_results_dir, current_keyboard = initTestInfo(adbcl)
+        log_input_text(local_results_dir,input_text)
+        x = threading.Thread(target=each_thread, args=(adbcl,local_results_dir,current_keyboard,))
+        threads.append(x)
+        x.start()
+        time.sleep(10) # wait >10s between thread starts
+    for index, thread in enumerate(threads):
+        thread.join()
 
         #change.uninstallKeyboard(current_keyboard)
-    else:
-        print (colored("at least 2 args required (text file to insert)","red"))
+   
