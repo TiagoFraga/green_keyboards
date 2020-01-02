@@ -11,10 +11,24 @@
         "last":[880,1240],
         "reco":"first"
     },
-    "swift":{
+    "swiftkey":{
         "first":[220,1200],
         "middle":[520,1200],
         "last":[820,1200],
         "reco":"last"
+    },
+     "cheetah":{
+        "first":[510,1090],
+        "reco":"first"
+    },
+     "fancykey":{
+        "first":[120,1080],
+        "reco":"first"
+    },
+     "go":{
+        "first":[250,1080],
+        "reco":"first"
     }
 }
+
+
