@@ -30,7 +30,7 @@ def generate_box_plots(csvs_dict):
     # energy boxplot
     generate_box_plots_from_column(" energy cons (J)", csvs_dict )
     generate_box_plots_from_column( ' time elapsed (ms)', csvs_dict)
-    generate_box_plots_from_column(" energy cons (J)", csvs_dict )
+    #generate_box_plots_from_column(" energy cons (J)", csvs_dict )
     generate_box_plots_from_column( ' cpuloadnormalized (%)', csvs_dict)
     generate_box_plots_from_column( ' memoryusage (KB)', csvs_dict)
 
