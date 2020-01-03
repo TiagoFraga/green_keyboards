@@ -7,7 +7,7 @@ import io
 import json
 from termcolor import colored
 
-output_folder = './outputs/'
+output_folder = './out_final/'
 list_of_fildes = ['cpuloadnormalized','memoryusage','energyconsumed','elapsedtime']
 
 def data_to_csv(data,string_folder):
