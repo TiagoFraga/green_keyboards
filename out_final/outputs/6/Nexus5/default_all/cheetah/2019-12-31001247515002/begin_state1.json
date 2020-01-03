@@ -1,0 +1,14 @@
+
+    {	"timestamp": "1577736380",
+		"used_cpu": "9.08/9.51/9.87",
+		"used_mem_pss": "510299", 
+		"used_mem_kernel": "62464", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "100", 
+		"battery_temperature": "291",
+		"keyboard": "panda.keyboard.emoji.theme/com.android.inputmethod.latin.LatinIME", 
+		"battery_voltage": "4318"
+		"nr_files_keyboard_folder": "324",
+		"main_cpu_freq": "960000"
+	}

@@ -1,0 +1,3 @@
+test_id; energy cons (J); time elapsed (ms); cpuloadnormalized (%); memoryusage (KB); gpuload (%)
+25;436.5925554256062;523500;21.64;1146116.90;7.95
+average;436.592555426;523500.0;21.64;1146116.9;0

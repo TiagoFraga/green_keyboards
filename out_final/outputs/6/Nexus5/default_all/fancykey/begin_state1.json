@@ -1,0 +1,14 @@
+
+    {	"timestamp": "1577792390",
+		"used_cpu": "7.94/4.09/1.62",
+		"used_mem_pss": "436572", 
+		"used_mem_kernel": "64128", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "98", 
+		"battery_temperature": "218",
+		"keyboard": "com.pinssible.fancykey/.FancyService", 
+		"battery_voltage": "4337"
+		"nr_files_keyboard_folder": "602",
+		"main_cpu_freq": "2265600"
+	}

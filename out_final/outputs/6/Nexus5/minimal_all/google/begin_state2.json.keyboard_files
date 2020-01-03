@@ -1,0 +1,16 @@
+/data/data/com.google.android.inputmethod.latin
+/data/data/com.google.android.inputmethod.latin/lib
+/data/data/com.google.android.inputmethod.latin/cache
+/data/data/com.google.android.inputmethod.latin/code_cache
+/data/data/com.google.android.inputmethod.latin/code_cache/com.android.opengl.shaders_cache
+/data/data/com.google.android.inputmethod.latin/databases
+/data/data/com.google.android.inputmethod.latin/databases/pendingUpdates
+/data/data/com.google.android.inputmethod.latin/databases/pendingUpdates-journal
+/data/data/com.google.android.inputmethod.latin/databases/pendingUpdates.com.google.android.inputmethod.latin
+/data/data/com.google.android.inputmethod.latin/databases/pendingUpdates.com.google.android.inputmethod.latin-journal
+/data/data/com.google.android.inputmethod.latin/files
+/data/data/com.google.android.inputmethod.latin/files/Personal.en_US.dict
+/data/data/com.google.android.inputmethod.latin/files/Contacts.dict
+/data/data/com.google.android.inputmethod.latin/shared_prefs
+/data/data/com.google.android.inputmethod.latin/shared_prefs/local_prefs.xml
+/data/data/com.google.android.inputmethod.latin/shared_prefs/com.google.android.inputmethod.latin_preferences.xml

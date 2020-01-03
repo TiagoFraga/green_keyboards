@@ -1,0 +1,14 @@
+
+    {	"timestamp": "1577942291",
+		"used_cpu": "10.17/10.38/10.28",
+		"used_mem_pss": "457073", 
+		"used_mem_kernel": "55372", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "100", 
+		"battery_temperature": "316",
+		"keyboard": "com.touchtype.swiftkey/com.touchtype.KeyboardService", 
+		"battery_voltage": "4322"
+		"nr_files_keyboard_folder": "107",
+		"main_cpu_freq": "2265600"
+	}

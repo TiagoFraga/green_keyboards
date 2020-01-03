@@ -1,0 +1,14 @@
+
+    {	"timestamp": "1577754976",
+		"used_cpu": "9.85/9.77/7.0",
+		"used_mem_pss": "515373", 
+		"used_mem_kernel": "67756", 
+		"nr_processes": "0", 
+		"ischarging": "1", 
+		"battery_level": "100", 
+		"battery_temperature": "286",
+		"keyboard": "com.jb.emoji.gokeyboard/com.jb.gokeyboard.GoKeyboard", 
+		"battery_voltage": "4337"
+		"nr_files_keyboard_folder": "108",
+		"main_cpu_freq": "1958400"
+	}
