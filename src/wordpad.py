@@ -26,14 +26,15 @@ MV_COMMAND = ''
 
 
 
-nr_tests = 25
+nr_tests = 1
 test_type = "default" #minimal or default
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
 package = "blackcarbon.wordpad"
 edit_text = "blackcarbon.wordpad:id/et_document"
 wordpad_cache_folder = ""
-type_mode="word"
+char_calib_file = './resources/input_files/char_calibration.json'
+type_mode="calibration" #char or word or calibration
 
 
 ########################
@@ -71,8 +72,8 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
 
     print(colored("[Text Files] Collecting data","yellow"))
     text_to_insert, lines_to_insert, words_to_insert, chars_to_insert, words_sugge, words_sugge_length = data.getData(input_text)
-
-
+    char_calib = data.getCalibration(chars_to_insert,char_calib_file,keyboard_name)
+    
     deviceState.getDeviceSpecs(adbcl.serialno,local_results_dir + "/device.json")
     deviceState.getDeviceState(adbcl.serialno,local_results_dir + "/deviceState.json")
     time.sleep(2)
@@ -102,8 +103,10 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     
     if type_mode == "char":
         app.writeChars(box_to_insert, chars_to_insert)
-    else:
+    elif type_mode == 'word':
         app.writeWords(box_to_insert,words_to_insert)
+    else:
+        app.writeCalib(box_to_insert,char_calib,adbcl)
     
     profiler.stopProfiler()
     print(colored("[Stop Profiling Phase] " + str(datetime.datetime.now()),"green"))

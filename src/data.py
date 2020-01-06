@@ -3,6 +3,7 @@
 import io
 import json
 
+
 def getData(input_text):
     text_to_insert = read_file(input_text)
     lines_to_insert = split_lines(input_text)
@@ -126,6 +127,29 @@ def get_triples_word_trunc_len(filename):
         trunc_word=word[:int(n_chars_to_write)]      
         ret_list.append((word,trunc_word,int(n_chars_to_write)))
     return ret_list
+
+def getCalibration(chars,calib_file,keyboard_name):
+    calib = getCoords(calib_file,keyboard_name)
+    calib_list = []
+    for char in chars:
+        char_lower = char.lower()
+        if char_lower.isalpha() == True:
+            coord = calib.get(char_lower)
+            calib_list.append(coord)            
+        else:
+            if(char_lower == '.'):
+               coord = calib.get('.')
+               calib_list.append(coord)
+            elif(char_lower == ','):
+               coord = calib.get(',')
+               calib_list.append(coord) 
+            elif(char_lower == ' '):
+               coord = calib.get('space')
+               calib_list.append(coord)
+    return calib_list
+
+    
+
 
 
 
