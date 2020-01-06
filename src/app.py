@@ -141,3 +141,7 @@ def setImmersiveMode(adbcl,package):
 def cleaningAppCache(adbcl,package):
     adbcl.shell("pm clear "+ package)
 
+
+def writeCalib(text,char_calib,adbcl):
+    for coord in char_calib:
+        adbcl.shell("input tap " + str(coord[0]) + ' ' +  str(coord[1]))
