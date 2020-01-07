@@ -148,7 +148,34 @@ def getCalibration(chars,calib_file,keyboard_name):
                calib_list.append(coord)
     return calib_list
 
-    
+
+def getCoordsSugges (coords,triples,keyboard_name,char_calib_file):
+    coord_suggest = coords[coords['reco']]
+    calib = getCoords(char_calib_file,keyboard_name)
+    coords_sug_list = []
+    for triple in triples:
+        if triple[2] == 0:
+            coords_sug_list.append(coord_suggest)
+        else:
+            word = triple[1]
+            for c in word:
+                char_lower = c.lower()
+                if char_lower.isalpha() == True:
+                    coord = calib.get(char_lower)
+                    coords_sug_list.append(coord)            
+                else:
+                    if(char_lower == '.'):
+                        coord = calib.get('.')
+                        coords_sug_list.append(coord)
+                    elif(char_lower == ','):
+                        coord = calib.get(',')
+                        coords_sug_list.append(coord) 
+                    elif(char_lower == ' '):
+                        coord = calib.get('space')
+                        coords_sug_list.append(coord) 
+            coords_sug_list.append(coord_suggest)
+    return coords_sug_list
+
 
 
 
