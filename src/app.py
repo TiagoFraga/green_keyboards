@@ -144,4 +144,4 @@ def cleaningAppCache(adbcl,package):
 
 def writeCalib(text,char_calib,adbcl):
     for coord in char_calib:
-        adbcl.shell("input tap " + str(coord[0]) + ' ' +  str(coord[1]))
+        adbcl.shell("input swipe " + str(coord[0]) + ' ' +  str(coord[1]) + ' ' + str(coord[0]) + ' ' +  str(coord[1]) + " 1")

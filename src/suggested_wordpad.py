@@ -26,7 +26,7 @@ MV_COMMAND = ''
 
 
 
-nr_tests = 25
+nr_tests = 1
 test_type = "minimal" #minimal or default
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
@@ -34,7 +34,8 @@ package = "blackcarbon.wordpad"
 edit_text = "blackcarbon.wordpad:id/et_document"
 wordpad_cache_folder = ""
 coords_file = './resources/input_files/coords.json'
-type_mode = "char" # char or word s
+char_calib_file = './resources/input_files/char_calibration.json'
+type_mode = "calib" #char or word or calib
 
 calibrations_folder="./resources/keyboard_calibration/"
 ########################
@@ -72,8 +73,9 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     print(colored("[Text Files] Collecting data","yellow"))
     #text_to_insert, lines_to_insert, words_to_insert, chars_to_insert, words_sugge, words_sugge_length = data.getData(input_text)
     coords = data.getCoords(coords_file,keyboard_name)
-
     triples =  data.get_triples_word_trunc_len(input_text)
+    coords_sug_list = data.getCoordsSugges(coords,triples,keyboard_name,char_calib_file)
+
     deviceState.getDeviceSpecs(adbcl.serialno,local_results_dir + "/device.json")
     deviceState.getDeviceState(adbcl.serialno,local_results_dir + "/deviceState.json")
     time.sleep(2)
@@ -102,8 +104,10 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
 
     if type_mode == "char":
         app.write_cutted_word_charbychar_with_suggestion_touch(adbcl,box_to_insert,triples, coords)
-    else:
+    elif type_mode == "word":
         app.write_cutted_word_with_suggestion_touch(adbcl,box_to_insert,triples, coords)
+    else:
+        app.writeCalib(box_to_insert,coords_sug_list,adbcl)
 
     profiler.stopProfiler()
     print(colored("[Stop Profiling Phase] " + str(datetime.datetime.now()),"green"))
@@ -122,6 +126,7 @@ def keyboard_test(adbcl, input_text, keyboard_name, test_index, local_results_di
     print(colored("[Profiler] Close profiler","green"))
     print(colored("[Profiler] wiping wordpad private folder","green"))
     wipe_wordpad_private_folder(adbcl)
+    
    
 
 def initTestInfo(adbcl):
