@@ -7,7 +7,7 @@ import io
 import json
 from termcolor import colored
 
-output_folder = './out_final/'
+output_folder = './nite/outputs/'
 list_of_fildes = ['cpuloadnormalized','memoryusage','energyconsumed','elapsedtime']
 all_fildes = ['begin_used_cpu','batteryremaining','cpu1load','cpu4load','begin_main_cpu_freq','cpu3frequency','begin_nr_procceses','begin_nr_files_keyboard_folder','end_ischarging','memoryusage','end_used_mem_kernel','cpu1frequency','cpu2load','cpuloadnormalized','end_main_cpu_freq','end_battery_temperature','end_used_cpu','begin_keyboard','batterystatus','begin_battery_temperature','begin_used_mem_kernel','cpuload','batterypower','end_nr_files_keyboard_folder','applicationstate','begin_ischarging','begin_used_mem_pss','gpuload','cpu4frequency','gpufrequency','begin_battery_level','cpu3load','elapsedtime','screenbrightness','end_used_mem_pss','end_battery_level','begin_battery_voltage','end_keyboard','cpu2frequency','description','end_battery_voltage','end_nr_procceses','energyconsumed']
 fildes_w_3_values = ['batteryremaining','cpu1load','cpu4load','cpu3frequency','memoryusage','cpu1frequency','cpu2load','cpuloadnormalized','batterystatus','cpuload','batterypower','applicationstate','gpuload','cpu4frequency','gpufrequency','cpu3load','screenbrightness','cpu2frequency','description']
@@ -97,6 +97,8 @@ def data_to_csv(data,string_folder):
         f.write(str(line['test_id']) + ';' + str(line['energyconsumed'])+ ';' + str(line['elapsedtime']) + ';' + str(line['cpuloadnormalized']) + ';' + str(line['memoryusage']) + ';' + str(line['gpuload']))
         f.write('\n')
     size = len(data)
+    if size==0:
+        size=1
     average_gpuload =  total_gpuload / size
     average_cpuloadnormalized = total_cpuloadnormalized / size
     average_memoryusage = total_memoryusage / size

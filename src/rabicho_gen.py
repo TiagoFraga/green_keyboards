@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 import os, sys
@@ -16,7 +15,7 @@ min_csv_row_len=10
 def fetch_all_data_csvs(folder):
     ret_list = []
     output = subprocess.check_output("find %s -type f -name \"all_data.csv\"" % folder, shell=True)
-    for x in output.strip().split("\n"):
+    for x in output.decode("utf-8").strip().split("\n"):
         ret_list.append(x)
     return ret_list
 

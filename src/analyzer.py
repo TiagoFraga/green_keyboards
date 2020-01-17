@@ -89,7 +89,7 @@ def wipe_and_copy_to_tmp_dir(target_dir, test_index):
 def analyze_temp_dir(local_results_dir):
     temp_dir= local_results_dir + "/temp/"
     os.system( "java -jar ./resources/jars/AnaDroidAnalyzer.jar -TestOriented "+ temp_dir + " -none NONE" )
-        
+    return temp_dir    
     
 
 

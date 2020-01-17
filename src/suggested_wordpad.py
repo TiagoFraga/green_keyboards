@@ -139,7 +139,7 @@ def initTestInfo(adbcl):
     current_keyboard = change.get_current_keyboard(adbcl)
     local_results_dir = analyzer.initLocalResultsDir(adbcl,current_keyboard,android_version,output_dir, adbcl.serialno, test_type)
     deviceState.assureTestExecutionConditions(adbcl)
-    deviceState.setBrightness(adbcl,0)
+    #deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
 
 
@@ -170,7 +170,7 @@ def wipe_wordpad_private_folder(adbcl):
 
 def get_matching_keyboard_calibration_file(adbcl):
     keyboard = change.get_current_keyboard(adbcl)
-    str_file = "%s/%s.out" % ( calibrations_folder , keyboard )
+    str_file = "%s/%s100.out" % ( calibrations_folder , keyboard )
     return str_file
 
 

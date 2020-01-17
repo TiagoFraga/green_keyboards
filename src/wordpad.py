@@ -140,7 +140,7 @@ def initTestInfo(adbcl):
     current_keyboard = change.get_current_keyboard(adbcl)
     local_results_dir = analyzer.initLocalResultsDir(adbcl,current_keyboard,android_version,output_dir, adbcl.serialno, test_type)
     deviceState.assureTestExecutionConditions(adbcl)
-    deviceState.setBrightness(adbcl,0)
+    #deviceState.setBrightness(adbcl,0)
     return local_results_dir,current_keyboard
 
 
@@ -167,7 +167,7 @@ if __name__== "__main__":
     if len(sys.argv) > 1:
         input_text = sys.argv[1]
         sys.argv.pop(1)
-        devices_serial_list = os.popen('adb devices -l  | grep \"port\" | cut -f1 -d\ ').read()
+        devices_serial_list = os.popen('adb devices -l  | grep \"product\" | cut -f1 -d\ ').read()
         threads = list()
         for index in range(len(devices_serial_list.split("\n"))-1):
             adbcl = adbclient.AdbClient( serialno=str(devices_serial_list.split("\n")[index])  , settransport=True)

@@ -12,10 +12,10 @@
         "reco":"first"
     },
     "swiftkey":{
-        "first":[220,1200],
-        "middle":[520,1200],
-        "last":[820,1200],
-        "reco":"last"
+        "first":[220,1070],
+        "middle":[520,1070 ],
+        "last":[820,1070],
+        "reco":"first"
     },
      "cheetah":{
         "first":[510,1090],

@@ -26,7 +26,7 @@ MV_COMMAND = ''
 
 
 
-nr_tests = 25
+nr_tests = 1
 test_type = "default" #minimal or default
 output_dir='/outputs/'
 deviceDir='/sdcard/trepn/'
@@ -75,7 +75,6 @@ def keyboard_test(adbcl, keyboard_name, test_index, local_results_dir):
     vc = ViewClient(*ViewClient.connectToDeviceOrExit(serialno=adbcl.serialno, **kwargs1))
     fmt = '%Y-%m-%d %H:%M:%S'
 
-    print(colored("[Text Files] Collecting data","yellow"))
     deviceState.getDeviceSpecs(adbcl.serialno,local_results_dir + "/device.json")
     deviceState.getDeviceState(adbcl.serialno,local_results_dir + "/deviceState.json")
     print(colored("[Testing: "+ adbcl.serialno + " "+str(test_index) + "] " + str(datetime.datetime.now()),"green"))
@@ -138,11 +137,20 @@ def initTestInfo(adbcl):
     return local_results_dir,current_keyboard
 
 
+def askName():
+    return str(raw_input("User name:"))
 
+
+def move_to_username_folder(username,temp_dir):
+    username_folder = "./outputs/6/Nexus5/" + username
+    print("user name foldeer "+username_folder)
+    os.system("mkdir %s" % username_folder)
+    os.system( "mv %s/ %s/ " % (temp_dir, username_folder))
 
 def wipe_wordpad_private_folder(adbcl):
     print("wiping")
     adbcl.shell( 'su -c " find  /data/data/blackcarbon.wordpad/  -type f | xargs rm   "')
+
 
 if __name__== "__main__":
     devices_serial_list = os.popen('adb devices -l  | grep \"transport\" | cut -f1 -d\ ').read()
@@ -151,12 +159,15 @@ if __name__== "__main__":
     local_results_dir, current_keyboard = initTestInfo(adbcl)
     print("***** [KEYBOARD TEST (device %s )] *****" % adbcl.serialno ,"blue")
     script_index = 0
-    while script_index < nr_tests:
-        script_index+=1
-        keyboard_test(adbcl , current_keyboard ,script_index,local_results_dir)   
-        analyzer.wipe_and_copy_to_tmp_dir(local_results_dir,script_index)
-        analyzer.analyze_temp_dir(local_results_dir)
-    analyzer.analyzeResults(local_results_dir)
+    user_name=askName()
+    #while script_index < nr_tests:
+    script_index+=1
+    keyboard_test(adbcl , current_keyboard ,script_index,local_results_dir)   
+    analyzer.wipe_and_copy_to_tmp_dir(local_results_dir,script_index)
+    temp_dir = analyzer.analyze_temp_dir(local_results_dir)
+    # todo move to username folder
+    move_to_username_folder(user_name,temp_dir)
+    #analyzer.analyzeResults(local_results_dir)
     print(colored("***** [KEYBOARD TEST - The End] *****","blue"))
 
 

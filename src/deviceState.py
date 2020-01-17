@@ -39,7 +39,7 @@ def assureTestExecutionConditions(adbcl):
     current_wifi_state = int(adbcl.shell("settings get global wifi_on ").strip())
     if not current_wifi_state == expected_wifi_state :
          print(colored("[Device Status Check] Please turn off wifi interface before executing the test","red"))
-         exit()
+         #exit()
 
     # check if the screen is ON and unlocked !!! 
     current_screen_state = adbcl.shell("dumpsys power | grep \"mWakefulness=\" | cut -f2 -d=").strip()
