@@ -1,0 +1,9 @@
+
+{
+	"device_serial_number": "066b51bd005cae0e",
+	 "device_model": "Nexus 5",
+	 "device_brand": "google",
+	 "device_ram": "1899508kB",
+	 "device_cores": "4",
+	 "device_max_cpu_freq": "/system/bin/sh: cat: /proc/cpumaxfreq: No such file or directory"
+}
